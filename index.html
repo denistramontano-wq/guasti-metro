@@ -155,7 +155,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="scroll-area">
 
     <!-- ── PAGINA: NUOVO GUASTO ── -->
-    <div class="page active" id="page-nuovo">
+    <div class="page active" id="page-guasto">
       <div class="sec-header">
         <div class="sec-title">Nuovo guasto</div>
         <div class="sec-sub">Compila i campi per registrare la segnalazione</div>
@@ -237,70 +237,186 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
 
-    <!-- ── PAGINA: ELENCO GUASTI ── -->
+    <!-- ── PAGINA: NUOVA SEGNALAZIONE ── -->
+    <div class="page" id="page-segnalazione">
+      <div class="sec-header">
+        <div class="sec-title">Nuova segnalazione</div>
+        <div class="sec-sub">Segnala un problema da inviare ai depositi</div>
+      </div>
+
+      <div class="success-banner" id="successBannerSeg">✅ Segnalazione registrata con successo</div>
+
+      <div class="card">
+        <div class="field">
+          <label>Linea <span class="req">*</span></label>
+          <div class="line-select" id="lineSelectSeg">
+            <label class="line-opt" data-line="M1"><input type="radio" name="lineaSeg" value="M1"><div class="line-opt-box">M1</div></label>
+            <label class="line-opt" data-line="M2"><input type="radio" name="lineaSeg" value="M2"><div class="line-opt-box">M2</div></label>
+            <label class="line-opt" data-line="M3"><input type="radio" name="lineaSeg" value="M3"><div class="line-opt-box">M3</div></label>
+            <label class="line-opt" data-line="M4"><input type="radio" name="lineaSeg" value="M4"><div class="line-opt-box">M4</div></label>
+            <label class="line-opt" data-line="M5"><input type="radio" name="lineaSeg" value="M5"><div class="line-opt-box">M5</div></label>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Data <span class="req">*</span></label>
+            <input type="date" id="s-data">
+          </div>
+          <div class="field">
+            <label>Ora <span class="req">*</span></label>
+            <input type="time" id="s-ora">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Materiale <span class="hint" style="display:inline">(matricola)</span></label>
+          <input type="text" id="s-materiale" placeholder="Es. 4567" inputmode="numeric">
+        </div>
+
+        <div class="field">
+          <label>Argomento <span class="req">*</span></label>
+          <select id="s-argomento">
+            <option value="">Seleziona...</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Descrizione breve <span class="req">*</span></label>
+          <input type="text" id="s-breve" placeholder="Sintesi della segnalazione" maxlength="120">
+        </div>
+
+        <div class="field">
+          <label>Descrizione estesa</label>
+          <textarea id="s-estesa" placeholder="Dettagli, circostanze..."></textarea>
+        </div>
+
+        <button class="btn-primary" id="btnSalvaSeg" onclick="salvaSegnalazione()">Registra segnalazione</button>
+        <div class="error-msg" id="formErrorSeg"></div>
+      </div>
+    </div>
+
+    <!-- ── PAGINA: ELENCHI ── -->
     <div class="page" id="page-elenco">
       <div class="sec-header">
-        <div class="sec-title">Elenco guasti</div>
+        <div class="sec-title">Elenchi</div>
         <div class="sec-sub" id="elencoCount">—</div>
       </div>
 
-      <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Cerca per testo, treno, stazione..." oninput="renderElenco()">
-      </div>
-      <div class="filter-chips" id="lineFilters">
-        <div class="f-chip active" data-f="ALL" onclick="setLineFilter('ALL',this)">Tutte</div>
-        <div class="f-chip" data-f="M1" onclick="setLineFilter('M1',this)">M1</div>
-        <div class="f-chip" data-f="M2" onclick="setLineFilter('M2',this)">M2</div>
-        <div class="f-chip" data-f="M3" onclick="setLineFilter('M3',this)">M3</div>
-        <div class="f-chip" data-f="M4" onclick="setLineFilter('M4',this)">M4</div>
-        <div class="f-chip" data-f="M5" onclick="setLineFilter('M5',this)">M5</div>
-      </div>
-      <div class="filter-chips">
-        <div class="f-chip active" data-s="ALL" onclick="setStatusFilter('ALL',this)">Tutti gli stati</div>
-        <div class="f-chip" data-s="no" onclick="setStatusFilter('no',this)">Non riparati</div>
-        <div class="f-chip" data-s="si" onclick="setStatusFilter('si',this)">Riparati</div>
+      <div class="filter-chips" style="margin-bottom:16px">
+        <div class="f-chip active" data-tab="guasti" onclick="setElencoTab('guasti',this)">🚧 Guasti</div>
+        <div class="f-chip" data-tab="segnalazioni" onclick="setElencoTab('segnalazioni',this)">📣 Segnalazioni</div>
       </div>
 
-      <div class="field-row" style="margin-bottom:14px">
-        <div class="field" style="margin-bottom:0">
-          <label>Mese</label>
-          <select id="monthFilter" onchange="renderElenco()">
-            <option value="ALL">Tutti i mesi</option>
-            <option value="01">Gennaio</option>
-            <option value="02">Febbraio</option>
-            <option value="03">Marzo</option>
-            <option value="04">Aprile</option>
-            <option value="05">Maggio</option>
-            <option value="06">Giugno</option>
-            <option value="07">Luglio</option>
-            <option value="08">Agosto</option>
-            <option value="09">Settembre</option>
-            <option value="10">Ottobre</option>
-            <option value="11">Novembre</option>
-            <option value="12">Dicembre</option>
-          </select>
+      <!-- ── TAB GUASTI ── -->
+      <div id="tab-guasti">
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Cerca per testo, treno, stazione..." oninput="renderElenco()">
         </div>
-        <div class="field" style="margin-bottom:0">
-          <label>Anno</label>
-          <select id="yearFilter" onchange="renderElenco()">
-            <option value="ALL">Tutti gli anni</option>
-          </select>
+        <div class="filter-chips" id="lineFilters">
+          <div class="f-chip active" data-f="ALL" onclick="setLineFilter('ALL',this)">Tutte</div>
+          <div class="f-chip" data-f="M1" onclick="setLineFilter('M1',this)">M1</div>
+          <div class="f-chip" data-f="M2" onclick="setLineFilter('M2',this)">M2</div>
+          <div class="f-chip" data-f="M3" onclick="setLineFilter('M3',this)">M3</div>
+          <div class="f-chip" data-f="M4" onclick="setLineFilter('M4',this)">M4</div>
+          <div class="f-chip" data-f="M5" onclick="setLineFilter('M5',this)">M5</div>
         </div>
+        <div class="filter-chips">
+          <div class="f-chip active" data-s="ALL" onclick="setStatusFilter('ALL',this)">Tutti gli stati</div>
+          <div class="f-chip" data-s="no" onclick="setStatusFilter('no',this)">Non riparati</div>
+          <div class="f-chip" data-s="si" onclick="setStatusFilter('si',this)">Riparati</div>
+        </div>
+
+        <div class="field-row" style="margin-bottom:14px">
+          <div class="field" style="margin-bottom:0">
+            <label>Mese</label>
+            <select id="monthFilter" onchange="renderElenco()">
+              <option value="ALL">Tutti i mesi</option>
+              <option value="01">Gennaio</option>
+              <option value="02">Febbraio</option>
+              <option value="03">Marzo</option>
+              <option value="04">Aprile</option>
+              <option value="05">Maggio</option>
+              <option value="06">Giugno</option>
+              <option value="07">Luglio</option>
+              <option value="08">Agosto</option>
+              <option value="09">Settembre</option>
+              <option value="10">Ottobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Dicembre</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Anno</label>
+            <select id="yearFilter" onchange="renderElenco()">
+              <option value="ALL">Tutti gli anni</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn-secondary" style="margin-top:0;margin-bottom:14px" onclick="scaricaCSV()">⬇️ Scarica elenco (CSV)</button>
+
+        <div id="elencoList"></div>
       </div>
 
-      <button class="btn-secondary" style="margin-top:0;margin-bottom:14px" onclick="scaricaCSV()">⬇️ Scarica elenco (CSV)</button>
+      <!-- ── TAB SEGNALAZIONI ── -->
+      <div id="tab-segnalazioni" style="display:none">
+        <div class="search-bar">
+          <input type="text" id="searchInputSeg" placeholder="Cerca per testo, materiale..." oninput="renderElencoSeg()">
+        </div>
+        <div class="filter-chips" id="lineFiltersSeg">
+          <div class="f-chip active" data-f="ALL" onclick="setLineFilterSeg('ALL',this)">Tutte</div>
+          <div class="f-chip" data-f="M1" onclick="setLineFilterSeg('M1',this)">M1</div>
+          <div class="f-chip" data-f="M2" onclick="setLineFilterSeg('M2',this)">M2</div>
+          <div class="f-chip" data-f="M3" onclick="setLineFilterSeg('M3',this)">M3</div>
+          <div class="f-chip" data-f="M4" onclick="setLineFilterSeg('M4',this)">M4</div>
+          <div class="f-chip" data-f="M5" onclick="setLineFilterSeg('M5',this)">M5</div>
+        </div>
 
-      <div id="elencoList"></div>
+        <div class="field-row" style="margin-bottom:14px">
+          <div class="field" style="margin-bottom:0">
+            <label>Mese</label>
+            <select id="monthFilterSeg" onchange="renderElencoSeg()">
+              <option value="ALL">Tutti i mesi</option>
+              <option value="01">Gennaio</option>
+              <option value="02">Febbraio</option>
+              <option value="03">Marzo</option>
+              <option value="04">Aprile</option>
+              <option value="05">Maggio</option>
+              <option value="06">Giugno</option>
+              <option value="07">Luglio</option>
+              <option value="08">Agosto</option>
+              <option value="09">Settembre</option>
+              <option value="10">Ottobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Dicembre</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Anno</label>
+            <select id="yearFilterSeg" onchange="renderElencoSeg()">
+              <option value="ALL">Tutti gli anni</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn-secondary" style="margin-top:0;margin-bottom:14px" onclick="scaricaCSVSeg()">⬇️ Scarica elenco (CSV)</button>
+
+        <div id="elencoListSeg"></div>
+      </div>
     </div>
 
   </div>
 
   <nav class="bottom-nav">
-    <button class="nav-item active" id="nav-nuovo" onclick="switchPage('nuovo',this)">
-      <span class="nav-icon">📝</span><span class="nav-label">Nuovo</span>
+    <button class="nav-item active" id="nav-guasto" onclick="switchPage('guasto',this)">
+      <span class="nav-icon">🚧</span><span class="nav-label">Guasto</span>
+    </button>
+    <button class="nav-item" id="nav-segnalazione" onclick="switchPage('segnalazione',this)">
+      <span class="nav-icon">📣</span><span class="nav-label">Segnalazione</span>
     </button>
     <button class="nav-item" id="nav-elenco" onclick="switchPage('elenco',this)">
-      <span class="nav-icon">📋</span><span class="nav-label">Elenco</span>
+      <span class="nav-icon">📋</span><span class="nav-label">Elenchi</span>
     </button>
   </nav>
 </div>
@@ -309,11 +425,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="overlay" id="detailOverlay">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <h2>Dettaglio guasto</h2>
+    <h2 id="detailTitle">Dettaglio guasto</h2>
     <div id="detailContent"></div>
     <div class="sheet-btns">
       <button class="btn-cancel" onclick="closeDetail()">Chiudi</button>
-      <button class="btn-del" id="btnDeleteGuasto" onclick="eliminaGuasto()">Elimina</button>
+      <button class="btn-del" id="btnDeleteGuasto" onclick="eliminaItem()">Elimina</button>
     </div>
   </div>
 </div>
@@ -350,18 +466,28 @@ const ARGOMENTI = [
 const LINE_COLORS = {M1:"#D84040",M2:"#2E9E4F",M3:"#D9B400",M4:"#1E6FD9",M5:"#8C4DD9"};
 
 let allGuasti = {};
+let allSegnalazioni = {};
 let lineFilter = "ALL", statusFilter = "ALL";
+let lineFilterSeg = "ALL";
 let selectedGuastoId = null;
+let selectedSegId = null;
+let elencoTab = "guasti";
 
 /* ════════ INIT FORM ════════ */
 function initForm(){
   const today = new Date();
   document.getElementById('f-data').value = today.toISOString().slice(0,10);
   document.getElementById('f-ora').value = today.toTimeString().slice(0,5);
+  document.getElementById('s-data').value = today.toISOString().slice(0,10);
+  document.getElementById('s-ora').value = today.toTimeString().slice(0,5);
 
   const sel = document.getElementById('f-argomento');
   ARGOMENTI.forEach(a=>{
     const o = document.createElement('option'); o.value=a; o.textContent=a; sel.appendChild(o);
+  });
+  const selSeg = document.getElementById('s-argomento');
+  ARGOMENTI.forEach(a=>{
+    const o = document.createElement('option'); o.value=a; o.textContent=a; selSeg.appendChild(o);
   });
 
   document.querySelectorAll('input[name="linea"]').forEach(r=>{
@@ -439,12 +565,61 @@ function resetForm(){
   document.getElementById('f-ora').value = today.toTimeString().slice(0,5);
 }
 
+function salvaSegnalazione(){
+  const err = document.getElementById('formErrorSeg');
+  err.textContent='';
+  const linea = document.querySelector('input[name="lineaSeg"]:checked')?.value;
+  const data = document.getElementById('s-data').value;
+  const ora = document.getElementById('s-ora').value;
+  const materiale = document.getElementById('s-materiale').value.trim();
+  const argomento = document.getElementById('s-argomento').value;
+  const breve = document.getElementById('s-breve').value.trim();
+  const estesa = document.getElementById('s-estesa').value.trim();
+
+  if(!linea){ err.textContent='Seleziona la linea.'; return; }
+  if(!data || !ora){ err.textContent='Inserisci data e ora.'; return; }
+  if(!argomento){ err.textContent='Seleziona un argomento.'; return; }
+  if(!breve){ err.textContent='Inserisci la descrizione breve.'; return; }
+
+  const record = { linea, data, ora, materiale, argomento, breve, estesa, creato: Date.now() };
+
+  document.getElementById('btnSalvaSeg').disabled = true;
+  db.ref('segnalazioni').push(record).then(()=>{
+    document.getElementById('btnSalvaSeg').disabled = false;
+    resetFormSeg();
+    const banner = document.getElementById('successBannerSeg');
+    banner.classList.add('show');
+    setTimeout(()=>banner.classList.remove('show'), 3000);
+    showToast('Segnalazione registrata');
+  }).catch(e=>{
+    document.getElementById('btnSalvaSeg').disabled = false;
+    err.textContent = 'Errore salvataggio: '+e.message;
+  });
+}
+function resetFormSeg(){
+  document.querySelectorAll('input[name="lineaSeg"]').forEach(r=>r.checked=false);
+  document.getElementById('s-materiale').value='';
+  document.getElementById('s-argomento').value='';
+  document.getElementById('s-breve').value='';
+  document.getElementById('s-estesa').value='';
+  const today = new Date();
+  document.getElementById('s-data').value = today.toISOString().slice(0,10);
+  document.getElementById('s-ora').value = today.toTimeString().slice(0,5);
+}
+
 /* ════════ ELENCO ════════ */
 function listenGuasti(){
   db.ref('guasti').on('value', snap=>{
     allGuasti = snap.val() || {};
     aggiornaAnniDisponibili();
     renderElenco();
+  });
+}
+function listenSegnalazioni(){
+  db.ref('segnalazioni').on('value', snap=>{
+    allSegnalazioni = snap.val() || {};
+    aggiornaAnniDisponibiliSeg();
+    renderElencoSeg();
   });
 }
 function aggiornaAnniDisponibili(){
@@ -459,17 +634,43 @@ function aggiornaAnniDisponibili(){
     anniSorted.map(a=>`<option value="${a}">${a}</option>`).join('');
   if(anniSorted.includes(current)) sel.value = current;
 }
+function aggiornaAnniDisponibiliSeg(){
+  const sel = document.getElementById('yearFilterSeg');
+  const current = sel.value;
+  const anni = new Set();
+  Object.values(allSegnalazioni).forEach(g=>{
+    if(g.data) anni.add(g.data.slice(0,4));
+  });
+  const anniSorted = Array.from(anni).sort((a,b)=>b-a);
+  sel.innerHTML = '<option value="ALL">Tutti gli anni</option>' +
+    anniSorted.map(a=>`<option value="${a}">${a}</option>`).join('');
+  if(anniSorted.includes(current)) sel.value = current;
+}
 function setLineFilter(f, el){
   lineFilter = f;
   document.querySelectorAll('#lineFilters .f-chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
   renderElenco();
 }
+function setLineFilterSeg(f, el){
+  lineFilterSeg = f;
+  document.querySelectorAll('#lineFiltersSeg .f-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderElencoSeg();
+}
 function setStatusFilter(f, el){
   statusFilter = f;
   el.parentElement.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
   renderElenco();
+}
+function setElencoTab(tab, el){
+  elencoTab = tab;
+  el.parentElement.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-guasti').style.display = tab==='guasti' ? 'block' : 'none';
+  document.getElementById('tab-segnalazioni').style.display = tab==='segnalazioni' ? 'block' : 'none';
+  if(tab==='guasti') renderElenco(); else renderElencoSeg();
 }
 function getFilteredEntries(){
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -495,7 +696,9 @@ function renderElenco(){
   const list = document.getElementById('elencoList');
   const entries = getFilteredEntries();
 
-  document.getElementById('elencoCount').textContent = entries.length + (entries.length===1?' guasto trovato':' guasti trovati');
+  if(elencoTab==='guasti'){
+    document.getElementById('elencoCount').textContent = entries.length + (entries.length===1?' guasto trovato':' guasti trovati');
+  }
 
   if(entries.length===0){
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nessun guasto trovato</div><div class="empty-sub">Modifica i filtri o la ricerca</div></div>`;
@@ -507,7 +710,7 @@ function renderElenco(){
     const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '';
     const statusClass = g.riparato==='si' ? 'riparato' : 'non-riparato';
     const statusLabel = g.riparato==='si' ? '✅ Riparato' : '❌ Non riparato';
-    return `<div class="guasto-card" onclick="openDetail('${id}')">
+    return `<div class="guasto-card" onclick="openDetail('guasto','${id}')">
       <div class="guasto-top">
         <span class="guasto-line-badge" style="background:${color}">${g.linea}</span>
         <span class="guasto-date">${dataFmt} ${g.ora||''}</span>
@@ -519,6 +722,54 @@ function renderElenco(){
         <span>🏷️ ${escapeHtml(g.argomento||'-')}</span>
       </div>
       <div style="margin-top:8px"><span class="status-pill ${statusClass}">${statusLabel}</span></div>
+    </div>`;
+  }).join('');
+}
+function getFilteredEntriesSeg(){
+  const q = document.getElementById('searchInputSeg').value.trim().toLowerCase();
+  const mese = document.getElementById('monthFilterSeg').value;
+  const anno = document.getElementById('yearFilterSeg').value;
+  let entries = Object.entries(allSegnalazioni);
+
+  entries = entries.filter(([id,g])=>{
+    if(lineFilterSeg!=='ALL' && g.linea!==lineFilterSeg) return false;
+    if(mese!=='ALL' && (!g.data || g.data.slice(5,7)!==mese)) return false;
+    if(anno!=='ALL' && (!g.data || g.data.slice(0,4)!==anno)) return false;
+    if(q){
+      const hay = [g.breve,g.estesa,g.materiale,g.argomento].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  entries.sort((a,b)=> (b[1].creato||0) - (a[1].creato||0));
+  return entries;
+}
+function renderElencoSeg(){
+  const list = document.getElementById('elencoListSeg');
+  const entries = getFilteredEntriesSeg();
+
+  if(elencoTab==='segnalazioni'){
+    document.getElementById('elencoCount').textContent = entries.length + (entries.length===1?' segnalazione trovata':' segnalazioni trovate');
+  }
+
+  if(entries.length===0){
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nessuna segnalazione trovata</div><div class="empty-sub">Modifica i filtri o la ricerca</div></div>`;
+    return;
+  }
+
+  list.innerHTML = entries.map(([id,g])=>{
+    const color = LINE_COLORS[g.linea] || '#888';
+    const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '';
+    return `<div class="guasto-card" onclick="openDetail('segnalazione','${id}')">
+      <div class="guasto-top">
+        <span class="guasto-line-badge" style="background:${color}">${g.linea}</span>
+        <span class="guasto-date">${dataFmt} ${g.ora||''}</span>
+      </div>
+      <div class="guasto-title">${escapeHtml(g.breve||'')}</div>
+      <div class="guasto-meta">
+        ${g.materiale?`<span>🔧 ${escapeHtml(g.materiale)}</span>`:''}
+        <span>🏷️ ${escapeHtml(g.argomento||'-')}</span>
+      </div>
     </div>`;
   }).join('');
 }
@@ -556,45 +807,105 @@ function scaricaCSV(){
   URL.revokeObjectURL(url);
   showToast('Elenco scaricato');
 }
+function scaricaCSVSeg(){
+  const entries = getFilteredEntriesSeg();
+  if(entries.length===0){ showToast('Nessuna segnalazione da esportare'); return; }
+
+  const headers = ['Linea','Data','Ora','Materiale','Argomento','Descrizione breve','Descrizione estesa'];
+  const rows = entries.map(([id,g])=>{
+    const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '';
+    return [
+      g.linea||'', dataFmt, g.ora||'', g.materiale||'', g.argomento||'', g.breve||'', g.estesa||''
+    ].map(csvEscape).join(';');
+  });
+  const csv = '\uFEFF' + headers.join(';') + '\n' + rows.join('\n');
+
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const now = new Date();
+  const stamp = now.toISOString().slice(0,10);
+  a.href = url;
+  a.download = `segnalazioni_${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Elenco scaricato');
+}
 function escapeHtml(s){
   return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 /* ════════ DETTAGLIO ════════ */
-function openDetail(id){
-  const g = allGuasti[id];
-  if(!g) return;
-  selectedGuastoId = id;
-  const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '';
-  const html = `
-    <div class="detail-row"><span class="detail-lbl">Linea</span><span class="detail-val">${g.linea||'-'}</span></div>
-    <div class="detail-row"><span class="detail-lbl">Data / Ora</span><span class="detail-val">${dataFmt} ${g.ora||''}</span></div>
-    <div class="detail-row"><span class="detail-lbl">Treno</span><span class="detail-val">${escapeHtml(g.treno)||'-'}</span></div>
-    <div class="detail-row"><span class="detail-lbl">Materiale</span><span class="detail-val">${escapeHtml(g.materiale)||'-'}</span></div>
-    <div class="detail-row"><span class="detail-lbl">Stazione</span><span class="detail-val">${escapeHtml(g.stazione)||'-'}</span></div>
-    <div class="detail-row"><span class="detail-lbl">Argomento</span><span class="detail-val">${escapeHtml(g.argomento)||'-'}</span></div>
-    <div class="detail-row"><span class="detail-lbl">Riparato</span><span class="detail-val">${g.riparato==='si'?'✅ Sì':'❌ No'}</span></div>
-    ${g.riparato==='no' && g.rientro ? `<div class="detail-row"><span class="detail-lbl">Rientrato dove</span><span class="detail-val">${escapeHtml(g.rientro)}</span></div>` : ''}
-    <div style="margin-top:12px">
-      <div class="detail-lbl" style="margin-bottom:6px">Descrizione breve</div>
-      <div class="detail-text">${escapeHtml(g.breve)||'-'}</div>
-    </div>
-    ${g.estesa ? `<div style="margin-top:12px"><div class="detail-lbl" style="margin-bottom:6px">Descrizione estesa</div><div class="detail-text">${escapeHtml(g.estesa)}</div></div>` : ''}
-  `;
+function openDetail(tipo, id){
+  selectedGuastoId = null;
+  selectedSegId = null;
+  let html, title;
+
+  if(tipo==='guasto'){
+    const g = allGuasti[id];
+    if(!g) return;
+    selectedGuastoId = id;
+    title = 'Dettaglio guasto';
+    const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '';
+    html = `
+      <div class="detail-row"><span class="detail-lbl">Linea</span><span class="detail-val">${g.linea||'-'}</span></div>
+      <div class="detail-row"><span class="detail-lbl">Data / Ora</span><span class="detail-val">${dataFmt} ${g.ora||''}</span></div>
+      <div class="detail-row"><span class="detail-lbl">Treno</span><span class="detail-val">${escapeHtml(g.treno)||'-'}</span></div>
+      <div class="detail-row"><span class="detail-lbl">Materiale</span><span class="detail-val">${escapeHtml(g.materiale)||'-'}</span></div>
+      <div class="detail-row"><span class="detail-lbl">Stazione</span><span class="detail-val">${escapeHtml(g.stazione)||'-'}</span></div>
+      <div class="detail-row"><span class="detail-lbl">Argomento</span><span class="detail-val">${escapeHtml(g.argomento)||'-'}</span></div>
+      <div class="detail-row"><span class="detail-lbl">Riparato</span><span class="detail-val">${g.riparato==='si'?'✅ Sì':'❌ No'}</span></div>
+      ${g.riparato==='no' && g.rientro ? `<div class="detail-row"><span class="detail-lbl">Rientrato dove</span><span class="detail-val">${escapeHtml(g.rientro)}</span></div>` : ''}
+      <div style="margin-top:12px">
+        <div class="detail-lbl" style="margin-bottom:6px">Descrizione breve</div>
+        <div class="detail-text">${escapeHtml(g.breve)||'-'}</div>
+      </div>
+      ${g.estesa ? `<div style="margin-top:12px"><div class="detail-lbl" style="margin-bottom:6px">Descrizione estesa</div><div class="detail-text">${escapeHtml(g.estesa)}</div></div>` : ''}
+    `;
+  } else {
+    const g = allSegnalazioni[id];
+    if(!g) return;
+    selectedSegId = id;
+    title = 'Dettaglio segnalazione';
+    const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '';
+    html = `
+      <div class="detail-row"><span class="detail-lbl">Linea</span><span class="detail-val">${g.linea||'-'}</span></div>
+      <div class="detail-row"><span class="detail-lbl">Data / Ora</span><span class="detail-val">${dataFmt} ${g.ora||''}</span></div>
+      <div class="detail-row"><span class="detail-lbl">Materiale</span><span class="detail-val">${escapeHtml(g.materiale)||'-'}</span></div>
+      <div class="detail-row"><span class="detail-lbl">Argomento</span><span class="detail-val">${escapeHtml(g.argomento)||'-'}</span></div>
+      <div style="margin-top:12px">
+        <div class="detail-lbl" style="margin-bottom:6px">Descrizione breve</div>
+        <div class="detail-text">${escapeHtml(g.breve)||'-'}</div>
+      </div>
+      ${g.estesa ? `<div style="margin-top:12px"><div class="detail-lbl" style="margin-bottom:6px">Descrizione estesa</div><div class="detail-text">${escapeHtml(g.estesa)}</div></div>` : ''}
+    `;
+  }
+
+  document.getElementById('detailTitle').textContent = title;
   document.getElementById('detailContent').innerHTML = html;
   document.getElementById('detailOverlay').classList.add('open');
 }
 function closeDetail(){
   document.getElementById('detailOverlay').classList.remove('open');
   selectedGuastoId = null;
+  selectedSegId = null;
 }
-function eliminaGuasto(){
-  if(!selectedGuastoId) return;
-  if(!confirm('Eliminare definitivamente questo guasto?')) return;
-  db.ref('guasti/'+selectedGuastoId).remove().then(()=>{
-    closeDetail();
-    showToast('Guasto eliminato');
-  });
+function eliminaItem(){
+  if(selectedGuastoId){
+    if(!confirm('Eliminare definitivamente questo guasto?')) return;
+    db.ref('guasti/'+selectedGuastoId).remove().then(()=>{
+      closeDetail();
+      showToast('Guasto eliminato');
+    });
+  } else if(selectedSegId){
+    if(!confirm('Eliminare definitivamente questa segnalazione?')) return;
+    db.ref('segnalazioni/'+selectedSegId).remove().then(()=>{
+      closeDetail();
+      showToast('Segnalazione eliminata');
+    });
+  }
 }
 
 /* ════════ NAVIGAZIONE ════════ */
@@ -615,6 +926,7 @@ function showToast(msg){
 
 initForm();
 listenGuasti();
+listenSegnalazioni();
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 </script>
 </body>
