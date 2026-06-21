@@ -261,6 +261,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="f-chip" data-s="si" onclick="setStatusFilter('si',this)">Riparati</div>
       </div>
 
+      <div class="field-row" style="margin-bottom:14px">
+        <div class="field" style="margin-bottom:0">
+          <label>Mese</label>
+          <select id="monthFilter" onchange="renderElenco()">
+            <option value="ALL">Tutti i mesi</option>
+            <option value="01">Gennaio</option>
+            <option value="02">Febbraio</option>
+            <option value="03">Marzo</option>
+            <option value="04">Aprile</option>
+            <option value="05">Maggio</option>
+            <option value="06">Giugno</option>
+            <option value="07">Luglio</option>
+            <option value="08">Agosto</option>
+            <option value="09">Settembre</option>
+            <option value="10">Ottobre</option>
+            <option value="11">Novembre</option>
+            <option value="12">Dicembre</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label>Anno</label>
+          <select id="yearFilter" onchange="renderElenco()">
+            <option value="ALL">Tutti gli anni</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-secondary" style="margin-top:0;margin-bottom:14px" onclick="scaricaCSV()">⬇️ Scarica elenco (CSV)</button>
+
       <div id="elencoList"></div>
     </div>
 
@@ -307,11 +336,11 @@ const db = firebase.database();
 
 /* ════════ DATI STATICI ════════ */
 const STAZIONI = {
-  M1: ["Bisceglie","Bonola","Uruguay","Lampugnano","San Leonardo","Molino Dorino","De Angeli","Pagano","Conciliazione","Cairoli","Cordusio","Duomo","San Babila","Palestro","Porta Venezia","Loreto","Pasteur","Lima","Gorla","Precotto","Turro","Sesto Marelli","Villa San Giovanni","Sesto Rondò","Sesto FS","Gambara","Rho Fiera","Pero","Molino Dorino-direz.Rho","Lotto","Buonarroti","Amendola","Inganni","Bande Nere","Primaticcio","Bisceglie-direz.Molino"],
-  M2: ["Abbiategrasso","Romolo","Famagosta","Chiesa Rossa","Casa Verde","Assago Forum","Abbiategrasso-Assago","Porto di Mare","Crocetta","Sant'Agostino","S.Ambrogio","De Amicis","Genova","Porta Genova","Romolo","Famagosta-direz","Cadorna","Lanza","Moscova","Garibaldi","Centrale FS","Caiazzo","Sondrio","Loreto","Cimiano","Cascina Gobba","Cologno Centro","Cologno Nord","Gessate","Bussero","Cernusco","Villa Fiorita","Vimodrone","Crescenzago","Udine","Piola","Lambrate","Gorgonzola","Vignate","Famagosta"],
-  M3: ["Comasina","Affori Centro","Affori FN","Dergano","Maciachini","Zara","Sondrio","Centrale FS","Repubblica","Turati","Montenapoleone","Duomo","Missori","Crocetta","Porta Romana","Lodi TIBB","Brenta","Corvetto","San Donato","Rogoredo","Sesto FS-M3","Comasina-direz"],
-  M4: ["San Cristoforo","Frattini","Segneri","Gelsomini","Tolstoj","Inganni","Bolivar","S.Ambrogio M4","De Amicis M4","Vetra","Sforza Policlinico","San Babila M4","Tricolore","Dateo","San Babila-direz","Susa","Argonne","Forlanini FS","Linate Aeroporto"],
-  M5: ["Bignami","Ca' Granda","Comasina M5","Bicocca","Ponale","Istria","Marche","Zara M5","Garibaldi M5","Monumentale","Cenisio","Gerusalemme","Domodossola","Tre Torri","Portello","Lotto M5","San Siro Ippodromo","San Siro Stadio"]
+  M1: ["Amendola","Bande Nere","Bisceglie","Bonola","Buonarroti","Cairoli","Conciliazione","Cordusio","De Angeli","Duomo","Gambara","Gorla","Inganni","Lampugnano","Lima","Loreto","Lotto","Molino Dorino","Pagano","Palestro","Pasteur","Pero","Porta Venezia","Precotto","Primaticcio","Rho Fiera","San Babila","San Leonardo","Sesto FS","Sesto Marelli","Sesto Rondò","Turro","Uruguay","Villa San Giovanni"],
+  M2: ["Abbiategrasso","Assago Forum","Bussero","Cadorna","Caiazzo","Casa Verde","Cascina Gobba","Centrale FS","Cernusco","Chiesa Rossa","Cimiano","Cologno Centro","Cologno Nord","Crescenzago","Crocetta","De Amicis","Famagosta","Garibaldi","Genova","Gessate","Gorgonzola","Lambrate","Lanza","Loreto","Moscova","Piola","Porta Genova","Porto di Mare","Romolo","S.Ambrogio","Sant'Agostino","Sondrio","Udine","Vignate","Villa Fiorita","Vimodrone"],
+  M3: ["Affori Centro","Affori FN","Brenta","Centrale FS","Comasina","Corvetto","Crocetta","Dergano","Duomo","Lodi TIBB","Maciachini","Missori","Montenapoleone","Porta Romana","Repubblica","Rogoredo","San Donato","Sesto FS","Sondrio","Turati","Zara"],
+  M4: ["Argonne","Bolivar","Dateo","De Amicis","Forlanini FS","Frattini","Gelsomini","Inganni","Linate Aeroporto","S.Ambrogio","San Babila","San Cristoforo","Segneri","Sforza Policlinico","Susa","Tolstoj","Tricolore","Vetra"],
+  M5: ["Bicocca","Bignami","Ca' Granda","Cenisio","Comasina","Domodossola","Garibaldi","Gerusalemme","Istria","Lotto","Marche","Monumentale","Ponale","Portello","San Siro Ippodromo","San Siro Stadio","Tre Torri","Zara"]
 };
 const ARGOMENTI = [
   "Porte","Trazione/motore","Freni","Climatizzazione (HVAC)","Pantografo/linea di contatto",
@@ -416,8 +445,21 @@ function resetForm(){
 function listenGuasti(){
   db.ref('guasti').on('value', snap=>{
     allGuasti = snap.val() || {};
+    aggiornaAnniDisponibili();
     renderElenco();
   });
+}
+function aggiornaAnniDisponibili(){
+  const sel = document.getElementById('yearFilter');
+  const current = sel.value;
+  const anni = new Set();
+  Object.values(allGuasti).forEach(g=>{
+    if(g.data) anni.add(g.data.slice(0,4));
+  });
+  const anniSorted = Array.from(anni).sort((a,b)=>b-a);
+  sel.innerHTML = '<option value="ALL">Tutti gli anni</option>' +
+    anniSorted.map(a=>`<option value="${a}">${a}</option>`).join('');
+  if(anniSorted.includes(current)) sel.value = current;
 }
 function setLineFilter(f, el){
   lineFilter = f;
@@ -431,14 +473,17 @@ function setStatusFilter(f, el){
   el.classList.add('active');
   renderElenco();
 }
-function renderElenco(){
-  const list = document.getElementById('elencoList');
+function getFilteredEntries(){
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const mese = document.getElementById('monthFilter').value;
+  const anno = document.getElementById('yearFilter').value;
   let entries = Object.entries(allGuasti);
 
   entries = entries.filter(([id,g])=>{
     if(lineFilter!=='ALL' && g.linea!==lineFilter) return false;
     if(statusFilter!=='ALL' && g.riparato!==statusFilter) return false;
+    if(mese!=='ALL' && (!g.data || g.data.slice(5,7)!==mese)) return false;
+    if(anno!=='ALL' && (!g.data || g.data.slice(0,4)!==anno)) return false;
     if(q){
       const hay = [g.breve,g.estesa,g.treno,g.materiale,g.stazione,g.argomento].join(' ').toLowerCase();
       if(!hay.includes(q)) return false;
@@ -446,6 +491,11 @@ function renderElenco(){
     return true;
   });
   entries.sort((a,b)=> (b[1].creato||0) - (a[1].creato||0));
+  return entries;
+}
+function renderElenco(){
+  const list = document.getElementById('elencoList');
+  const entries = getFilteredEntries();
 
   document.getElementById('elencoCount').textContent = entries.length + (entries.length===1?' guasto trovato':' guasti trovati');
 
@@ -473,6 +523,40 @@ function renderElenco(){
       <div style="margin-top:8px"><span class="status-pill ${statusClass}">${statusLabel}</span></div>
     </div>`;
   }).join('');
+}
+function csvEscape(v){
+  const s = (v===undefined||v===null) ? '' : String(v);
+  if(/[",\n;]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+  return s;
+}
+function scaricaCSV(){
+  const entries = getFilteredEntries();
+  if(entries.length===0){ showToast('Nessun guasto da esportare'); return; }
+
+  const headers = ['Linea','Data','Ora','Treno','Materiale','Stazione','Argomento','Descrizione breve','Descrizione estesa','Riparato','Rientrato dove'];
+  const rows = entries.map(([id,g])=>{
+    const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '';
+    return [
+      g.linea||'', dataFmt, g.ora||'', g.treno||'', g.materiale||'', g.stazione||'',
+      g.argomento||'', g.breve||'', g.estesa||'',
+      g.riparato==='si' ? 'Sì' : 'No',
+      g.riparato==='no' ? (g.rientro||'') : ''
+    ].map(csvEscape).join(';');
+  });
+  const csv = '\uFEFF' + headers.join(';') + '\n' + rows.join('\n');
+
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const now = new Date();
+  const stamp = now.toISOString().slice(0,10);
+  a.href = url;
+  a.download = `guasti_${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Elenco scaricato');
 }
 function escapeHtml(s){
   return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
