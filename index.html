@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#3C3489">
+<meta name="description" content="Registrazione guasti metro">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon.svg">
+<title>Guasti Metro</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<style>
+:root{
+  --bg:#F4F3FB; --surface:#fff; --surface2:#F8F7FF;
+  --border:#E2DFFA; --border2:#CBC6F0;
+  --purple:#534AB7; --purple-dk:#3C3489; --purple-lt:#EEEDFE;
+  --text:#1A1735; --text2:#6B6891; --text3:#A09DC0;
+  --green-bg:#D4EDDA; --green-fg:#1E6B3A;
+  --blue-bg:#D0E4F7;  --blue-fg:#0C447C;
+  --violet-bg:#E8D5F7;--violet-fg:#5A1E8C;
+  --gray-bg:#F1EFE8;  --gray-fg:#5F5E5A;
+  --amber-bg:#FFF3CD; --amber-fg:#856404;
+  --red-bg:#FBDADA; --red-fg:#A12626;
+  --red:#D84040;
+  --nav-h:64px; --top-h:56px;
+  --safe-b:env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+
+/* ── TOPBAR ── */
+.topbar{height:var(--top-h);background:var(--purple-dk);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;position:relative;z-index:50}
+.topbar-logo{font-size:18px;font-weight:800;color:white;letter-spacing:-.5px}
+.topbar-logo span{color:#AFA9EC}
+.topbar-actions{display:flex;align-items:center;gap:6px}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(255,255,255,.12);color:white;transition:background .15s}
+.icon-btn:active{background:rgba(255,255,255,.25)}
+
+/* ── SCROLL CONTAINER ── */
+.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nav-h) + var(--safe-b) + 16px)}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{height:calc(var(--nav-h) + var(--safe-b));padding-bottom:var(--safe-b);background:var(--surface);border-top:1px solid var(--border);display:flex;flex-shrink:0;z-index:50}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--text3);transition:color .15s;border:none;background:none;padding:6px 0}
+.nav-item.active{color:var(--purple)}
+.nav-icon{font-size:22px;line-height:1}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:.02em}
+.nav-item.active .nav-label{color:var(--purple)}
+
+/* ── PAGES ── */
+.page{display:none;padding:16px}
+.page.active{display:block}
+.sec-header{margin-bottom:16px}
+.sec-title{font-size:20px;font-weight:800;color:var(--text)}
+.sec-sub{font-size:13px;color:var(--text2);margin-top:2px}
+
+/* ── FORM ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:14px}
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.field .hint{font-size:11px;color:var(--text3);margin-top:4px;font-weight:500;text-transform:none;letter-spacing:0}
+.field input,.field select,.field textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;background:var(--surface2);color:var(--text);outline:none;-webkit-appearance:none;appearance:none;font-family:inherit}
+.field textarea{resize:vertical;min-height:90px;line-height:1.4}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--purple)}
+.field select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B6891' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center;background-size:18px;padding-right:38px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.line-select{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.line-opt{position:relative}
+.line-opt input{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;margin:0;top:0;left:0}
+.line-opt-box{border:1.5px solid var(--border);border-radius:12px;padding:10px 4px;text-align:center;font-size:13px;font-weight:700;color:var(--text2);background:var(--surface2);transition:all .15s}
+.line-opt input:checked + .line-opt-box{border-color:transparent;color:white}
+.line-opt[data-line="M1"] input:checked + .line-opt-box{background:#D84040}
+.line-opt[data-line="M2"] input:checked + .line-opt-box{background:#2E9E4F}
+.line-opt[data-line="M3"] input:checked + .line-opt-box{background:#D9B400}
+.line-opt[data-line="M4"] input:checked + .line-opt-box{background:#1E6FD9}
+.line-opt[data-line="M5"] input:checked + .line-opt-box{background:#8C4DD9}
+
+.toggle-group{display:flex;gap:8px}
+.toggle-opt{flex:1;position:relative}
+.toggle-opt input{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;margin:0;top:0;left:0}
+.toggle-opt-box{border:1.5px solid var(--border);border-radius:12px;padding:12px;text-align:center;font-size:14px;font-weight:700;color:var(--text2);background:var(--surface2);transition:all .15s}
+.toggle-opt input:checked + .toggle-opt-box{background:var(--purple);border-color:var(--purple);color:white}
+
+.btn-primary{width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none;background:var(--purple);color:white;margin-top:6px}
+.btn-primary:active{background:var(--purple-dk)}
+.btn-primary:disabled{opacity:.5}
+.btn-secondary{width:100%;padding:14px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;border:none;background:var(--surface2);color:var(--text2);margin-top:8px}
+
+.req{color:var(--red)}
+.error-msg{color:var(--red);font-size:13px;font-weight:600;margin-top:10px;text-align:center}
+.success-banner{background:var(--green-bg);color:var(--green-fg);border-radius:12px;padding:12px 14px;font-size:13px;font-weight:700;margin-bottom:14px;display:none;align-items:center;gap:8px}
+.success-banner.show{display:flex}
+
+/* ── LISTA GUASTI ── */
+.search-bar{display:flex;gap:8px;margin-bottom:12px}
+.search-bar input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;background:var(--surface);outline:none}
+.search-bar input:focus{border-color:var(--purple)}
+.filter-chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.filter-chips::-webkit-scrollbar{display:none}
+.f-chip{flex-shrink:0;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;background:var(--surface);border:1.5px solid var(--border);color:var(--text2);cursor:pointer;white-space:nowrap}
+.f-chip.active{background:var(--purple);border-color:var(--purple);color:white}
+
+.guasto-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px;cursor:pointer}
+.guasto-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.guasto-line-badge{font-size:11px;font-weight:800;color:white;border-radius:8px;padding:3px 8px}
+.guasto-date{font-size:12px;color:var(--text3);font-weight:600}
+.guasto-title{font-size:14.5px;font-weight:700;color:var(--text);margin-bottom:4px}
+.guasto-meta{font-size:12.5px;color:var(--text2);display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.guasto-meta span{display:flex;align-items:center;gap:4px}
+.status-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
+.status-pill.riparato{background:var(--green-bg);color:var(--green-fg)}
+.status-pill.non-riparato{background:var(--red-bg);color:var(--red-fg)}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-icon{font-size:44px;margin-bottom:10px}
+.empty-title{font-size:15px;font-weight:700;color:var(--text2);margin-bottom:4px}
+.empty-sub{font-size:13px;color:var(--text3)}
+
+/* ── OVERLAY / DETTAGLIO ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(26,23,53,.5);z-index:200;align-items:flex-end;justify-content:center}
+.overlay.open{display:flex}
+.sheet{background:var(--surface);border-radius:22px 22px 0 0;padding:20px 20px calc(20px + var(--safe-b));width:100%;max-width:500px;max-height:88vh;overflow-y:auto}
+.sheet-handle{width:40px;height:4px;background:var(--border2);border-radius:4px;margin:0 auto 18px}
+.sheet h2{font-size:18px;font-weight:700;margin-bottom:14px;color:var(--text)}
+.detail-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.detail-row:last-child{border-bottom:none}
+.detail-lbl{font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
+.detail-val{font-size:14px;font-weight:600;color:var(--text);text-align:right;max-width:60%}
+.detail-text{background:var(--surface2);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--text);line-height:1.5;margin-top:6px;white-space:pre-wrap}
+.sheet-btns{display:flex;gap:10px;margin-top:18px}
+.sheet-btns button{flex:1;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none}
+.btn-cancel{background:var(--surface2);color:var(--text2)}
+.btn-del{background:var(--red-bg);color:var(--red-fg)}
+
+.toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 16px);left:50%;transform:translateX(-50%);background:var(--text);color:white;padding:11px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:500;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- ══════════ APP ══════════ -->
+<div id="appRoot" style="height:100%;display:flex;flex-direction:column">
+
+  <div class="topbar">
+    <div class="topbar-logo">Guasti<span>Metro</span></div>
+  </div>
+
+  <div class="scroll-area">
+
+    <!-- ── PAGINA: NUOVO GUASTO ── -->
+    <div class="page active" id="page-nuovo">
+      <div class="sec-header">
+        <div class="sec-title">Nuovo guasto</div>
+        <div class="sec-sub">Compila i campi per registrare la segnalazione</div>
+      </div>
+
+      <div class="success-banner" id="successBanner">✅ Guasto registrato con successo</div>
+
+      <div class="card">
+        <div class="field">
+          <label>Linea <span class="req">*</span></label>
+          <div class="line-select" id="lineSelect">
+            <label class="line-opt" data-line="M1"><input type="radio" name="linea" value="M1"><div class="line-opt-box">M1</div></label>
+            <label class="line-opt" data-line="M2"><input type="radio" name="linea" value="M2"><div class="line-opt-box">M2</div></label>
+            <label class="line-opt" data-line="M3"><input type="radio" name="linea" value="M3"><div class="line-opt-box">M3</div></label>
+            <label class="line-opt" data-line="M4"><input type="radio" name="linea" value="M4"><div class="line-opt-box">M4</div></label>
+            <label class="line-opt" data-line="M5"><input type="radio" name="linea" value="M5"><div class="line-opt-box">M5</div></label>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Data <span class="req">*</span></label>
+            <input type="date" id="f-data">
+          </div>
+          <div class="field">
+            <label>Ora <span class="req">*</span></label>
+            <input type="time" id="f-ora">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Treno</label>
+            <input type="text" id="f-treno" placeholder="Es. T123" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label>Materiale <span class="hint" style="display:inline">(matricola)</span></label>
+            <input type="text" id="f-materiale" placeholder="Es. 4567" inputmode="numeric">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Stazione evento <span class="req">*</span></label>
+          <select id="f-stazione"><option value="">Seleziona linea prima</option></select>
+        </div>
+
+        <div class="field">
+          <label>Argomento <span class="req">*</span></label>
+          <select id="f-argomento">
+            <option value="">Seleziona...</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Descrizione breve <span class="req">*</span></label>
+          <input type="text" id="f-breve" placeholder="Sintesi del guasto" maxlength="120">
+        </div>
+
+        <div class="field">
+          <label>Descrizione estesa</label>
+          <textarea id="f-estesa" placeholder="Dettagli, circostanze, intervento effettuato..."></textarea>
+        </div>
+
+        <div class="field">
+          <label>Riparato <span class="req">*</span></label>
+          <div class="toggle-group">
+            <label class="toggle-opt"><input type="radio" name="riparato" value="si" onchange="toggleRientro()"><div class="toggle-opt-box">✅ Sì</div></label>
+            <label class="toggle-opt"><input type="radio" name="riparato" value="no" onchange="toggleRientro()"><div class="toggle-opt-box">❌ No</div></label>
+          </div>
+        </div>
+
+        <div class="field" id="rientroField" style="display:none">
+          <label>Rientrato dove</label>
+          <input type="text" id="f-rientro" placeholder="Es. deposito, capolinea...">
+        </div>
+
+        <button class="btn-primary" id="btnSalva" onclick="salvaGuasto()">Registra guasto</button>
+        <div class="error-msg" id="formError"></div>
+      </div>
+    </div>
+
+    <!-- ── PAGINA: ELENCO GUASTI ── -->
+    <div class="page" id="page-elenco">
+      <div class="sec-header">
+        <div class="sec-title">Elenco guasti</div>
+        <div class="sec-sub" id="elencoCount">—</div>
+      </div>
+
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Cerca per testo, treno, stazione..." oninput="renderElenco()">
+      </div>
+      <div class="filter-chips" id="lineFilters">
+        <div class="f-chip active" data-f="ALL" onclick="setLineFilter('ALL',this)">Tutte</div>
+        <div class="f-chip" data-f="M1" onclick="setLineFilter('M1',this)">M1</div>
+        <div class="f-chip" data-f="M2" onclick="setLineFilter('M2',this)">M2</div>
+        <div class="f-chip" data-f="M3" onclick="setLineFilter('M3',this)">M3</div>
+        <div class="f-chip" data-f="M4" onclick="setLineFilter('M4',this)">M4</div>
+        <div class="f-chip" data-f="M5" onclick="setLineFilter('M5',this)">M5</div>
+      </div>
+      <div class="filter-chips">
+        <div class="f-chip active" data-s="ALL" onclick="setStatusFilter('ALL',this)">Tutti gli stati</div>
+        <div class="f-chip" data-s="no" onclick="setStatusFilter('no',this)">Non riparati</div>
+        <div class="f-chip" data-s="si" onclick="setStatusFilter('si',this)">Riparati</div>
+      </div>
+
+      <div id="elencoList"></div>
+    </div>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-nuovo" onclick="switchPage('nuovo',this)">
+      <span class="nav-icon">📝</span><span class="nav-label">Nuovo</span>
+    </button>
+    <button class="nav-item" id="nav-elenco" onclick="switchPage('elenco',this)">
+      <span class="nav-icon">📋</span><span class="nav-label">Elenco</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ── SHEET DETTAGLIO ── -->
+<div class="overlay" id="detailOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2>Dettaglio guasto</h2>
+    <div id="detailContent"></div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" onclick="closeDetail()">Chiudi</button>
+      <button class="btn-del" id="btnDeleteGuasto" onclick="eliminaGuasto()">Elimina</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════ CONFIG FIREBASE (progetto "assistenza-di-linea") ════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDL7N3HlfR4xF7vUPZvApvhFY8x-__jXIo",
+  authDomain: "assistenza-di-linea.firebaseapp.com",
+  databaseURL: "https://assistenza-di-linea-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "assistenza-di-linea",
+  storageBucket: "assistenza-di-linea.firebasestorage.app",
+  messagingSenderId: "1033380053471",
+  appId: "1:1033380053471:web:ac196db53e38474486c46a"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* ════════ DATI STATICI ════════ */
+const STAZIONI = {
+  M1: ["Bisceglie","Bonola","Uruguay","Lampugnano","San Leonardo","Molino Dorino","De Angeli","Pagano","Conciliazione","Cairoli","Cordusio","Duomo","San Babila","Palestro","Porta Venezia","Loreto","Pasteur","Lima","Gorla","Precotto","Turro","Sesto Marelli","Villa San Giovanni","Sesto Rondò","Sesto FS","Gambara","Rho Fiera","Pero","Molino Dorino-direz.Rho","Lotto","Buonarroti","Amendola","Inganni","Bande Nere","Primaticcio","Bisceglie-direz.Molino"],
+  M2: ["Abbiategrasso","Romolo","Famagosta","Chiesa Rossa","Casa Verde","Assago Forum","Abbiategrasso-Assago","Porto di Mare","Crocetta","Sant'Agostino","S.Ambrogio","De Amicis","Genova","Porta Genova","Romolo","Famagosta-direz","Cadorna","Lanza","Moscova","Garibaldi","Centrale FS","Caiazzo","Sondrio","Loreto","Cimiano","Cascina Gobba","Cologno Centro","Cologno Nord","Gessate","Bussero","Cernusco","Villa Fiorita","Vimodrone","Crescenzago","Udine","Piola","Lambrate","Gorgonzola","Vignate","Famagosta"],
+  M3: ["Comasina","Affori Centro","Affori FN","Dergano","Maciachini","Zara","Sondrio","Centrale FS","Repubblica","Turati","Montenapoleone","Duomo","Missori","Crocetta","Porta Romana","Lodi TIBB","Brenta","Corvetto","San Donato","Rogoredo","Sesto FS-M3","Comasina-direz"],
+  M4: ["San Cristoforo","Frattini","Segneri","Gelsomini","Tolstoj","Inganni","Bolivar","S.Ambrogio M4","De Amicis M4","Vetra","Sforza Policlinico","San Babila M4","Tricolore","Dateo","San Babila-direz","Susa","Argonne","Forlanini FS","Linate Aeroporto"],
+  M5: ["Bignami","Ca' Granda","Comasina M5","Bicocca","Ponale","Istria","Marche","Zara M5","Garibaldi M5","Monumentale","Cenisio","Gerusalemme","Domodossola","Tre Torri","Portello","Lotto M5","San Siro Ippodromo","San Siro Stadio"]
+};
+const ARGOMENTI = [
+  "Porte","Trazione/motore","Freni","Climatizzazione (HVAC)","Pantografo/linea di contatto",
+  "Segnalamento/ATC","Comunicazione di bordo (radio/diffusione)","Illuminazione",
+  "Sistema informativo passeggeri (display)","Videosorveglianza","Pavimento/cassa veicolo",
+  "Sospensioni/carrelli","Cabina di guida","Apparato pneumatico","Allarme/sicurezza passeggeri",
+  "Altro"
+];
+const LINE_COLORS = {M1:"#D84040",M2:"#2E9E4F",M3:"#D9B400",M4:"#1E6FD9",M5:"#8C4DD9"};
+
+let allGuasti = {};
+let lineFilter = "ALL", statusFilter = "ALL";
+let selectedGuastoId = null;
+
+/* ════════ INIT FORM ════════ */
+function initForm(){
+  const today = new Date();
+  document.getElementById('f-data').value = today.toISOString().slice(0,10);
+  document.getElementById('f-ora').value = today.toTimeString().slice(0,5);
+
+  const sel = document.getElementById('f-argomento');
+  ARGOMENTI.forEach(a=>{
+    const o = document.createElement('option'); o.value=a; o.textContent=a; sel.appendChild(o);
+  });
+
+  document.querySelectorAll('input[name="linea"]').forEach(r=>{
+    r.addEventListener('change', ()=> populateStazioni(r.value));
+  });
+}
+function populateStazioni(linea){
+  const sel = document.getElementById('f-stazione');
+  sel.innerHTML = '<option value="">Seleziona...</option>';
+  (STAZIONI[linea]||[]).forEach(s=>{
+    const o = document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o);
+  });
+}
+function toggleRientro(){
+  const no = document.querySelector('input[name="riparato"][value="no"]').checked;
+  document.getElementById('rientroField').style.display = no ? 'block' : 'none';
+}
+
+/* ════════ SALVATAGGIO ════════ */
+function salvaGuasto(){
+  const err = document.getElementById('formError');
+  err.textContent='';
+  const linea = document.querySelector('input[name="linea"]:checked')?.value;
+  const data = document.getElementById('f-data').value;
+  const ora = document.getElementById('f-ora').value;
+  const treno = document.getElementById('f-treno').value.trim();
+  const materiale = document.getElementById('f-materiale').value.trim();
+  const stazione = document.getElementById('f-stazione').value;
+  const argomento = document.getElementById('f-argomento').value;
+  const breve = document.getElementById('f-breve').value.trim();
+  const estesa = document.getElementById('f-estesa').value.trim();
+  const riparatoEl = document.querySelector('input[name="riparato"]:checked');
+  const riparato = riparatoEl ? riparatoEl.value : '';
+  const rientro = document.getElementById('f-rientro').value.trim();
+
+  if(!linea){ err.textContent='Seleziona la linea.'; return; }
+  if(!data || !ora){ err.textContent='Inserisci data e ora.'; return; }
+  if(!stazione){ err.textContent='Seleziona la stazione evento.'; return; }
+  if(!argomento){ err.textContent='Seleziona un argomento.'; return; }
+  if(!breve){ err.textContent='Inserisci la descrizione breve.'; return; }
+  if(!riparato){ err.textContent='Indica se il guasto è stato riparato.'; return; }
+
+  const record = {
+    linea, data, ora, treno, materiale, stazione, argomento, breve, estesa,
+    riparato, rientro: riparato==='no' ? rientro : '',
+    creato: Date.now()
+  };
+
+  document.getElementById('btnSalva').disabled = true;
+  db.ref('guasti').push(record).then(()=>{
+    document.getElementById('btnSalva').disabled = false;
+    resetForm();
+    const banner = document.getElementById('successBanner');
+    banner.classList.add('show');
+    setTimeout(()=>banner.classList.remove('show'), 3000);
+    showToast('Guasto registrato');
+  }).catch(e=>{
+    document.getElementById('btnSalva').disabled = false;
+    err.textContent = 'Errore salvataggio: '+e.message;
+  });
+}
+function resetForm(){
+  document.querySelectorAll('input[name="linea"]').forEach(r=>r.checked=false);
+  document.querySelectorAll('input[name="riparato"]').forEach(r=>r.checked=false);
+  document.getElementById('f-treno').value='';
+  document.getElementById('f-materiale').value='';
+  document.getElementById('f-stazione').innerHTML='<option value="">Seleziona linea prima</option>';
+  document.getElementById('f-argomento').value='';
+  document.getElementById('f-breve').value='';
+  document.getElementById('f-estesa').value='';
+  document.getElementById('f-rientro').value='';
+  document.getElementById('rientroField').style.display='none';
+  const today = new Date();
+  document.getElementById('f-data').value = today.toISOString().slice(0,10);
+  document.getElementById('f-ora').value = today.toTimeString().slice(0,5);
+}
+
+/* ════════ ELENCO ════════ */
+function listenGuasti(){
+  db.ref('guasti').on('value', snap=>{
+    allGuasti = snap.val() || {};
+    renderElenco();
+  });
+}
+function setLineFilter(f, el){
+  lineFilter = f;
+  document.querySelectorAll('#lineFilters .f-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderElenco();
+}
+function setStatusFilter(f, el){
+  statusFilter = f;
+  el.parentElement.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderElenco();
+}
+function renderElenco(){
+  const list = document.getElementById('elencoList');
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let entries = Object.entries(allGuasti);
+
+  entries = entries.filter(([id,g])=>{
+    if(lineFilter!=='ALL' && g.linea!==lineFilter) return false;
+    if(statusFilter!=='ALL' && g.riparato!==statusFilter) return false;
+    if(q){
+      const hay = [g.breve,g.estesa,g.treno,g.materiale,g.stazione,g.argomento].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  entries.sort((a,b)=> (b[1].creato||0) - (a[1].creato||0));
+
+  document.getElementById('elencoCount').textContent = entries.length + (entries.length===1?' guasto trovato':' guasti trovati');
+
+  if(entries.length===0){
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nessun guasto trovato</div><div class="empty-sub">Modifica i filtri o la ricerca</div></div>`;
+    return;
+  }
+
+  list.innerHTML = entries.map(([id,g])=>{
+    const color = LINE_COLORS[g.linea] || '#888';
+    const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '';
+    const statusClass = g.riparato==='si' ? 'riparato' : 'non-riparato';
+    const statusLabel = g.riparato==='si' ? '✅ Riparato' : '❌ Non riparato';
+    return `<div class="guasto-card" onclick="openDetail('${id}')">
+      <div class="guasto-top">
+        <span class="guasto-line-badge" style="background:${color}">${g.linea}</span>
+        <span class="guasto-date">${dataFmt} ${g.ora||''}</span>
+      </div>
+      <div class="guasto-title">${escapeHtml(g.breve||'')}</div>
+      <div class="guasto-meta">
+        <span>📍 ${escapeHtml(g.stazione||'-')}</span>
+        ${g.treno?`<span>🚆 ${escapeHtml(g.treno)}</span>`:''}
+        <span>🏷️ ${escapeHtml(g.argomento||'-')}</span>
+      </div>
+      <div style="margin-top:8px"><span class="status-pill ${statusClass}">${statusLabel}</span></div>
+    </div>`;
+  }).join('');
+}
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ════════ DETTAGLIO ════════ */
+function openDetail(id){
+  const g = allGuasti[id];
+  if(!g) return;
+  selectedGuastoId = id;
+  const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '';
+  const html = `
+    <div class="detail-row"><span class="detail-lbl">Linea</span><span class="detail-val">${g.linea||'-'}</span></div>
+    <div class="detail-row"><span class="detail-lbl">Data / Ora</span><span class="detail-val">${dataFmt} ${g.ora||''}</span></div>
+    <div class="detail-row"><span class="detail-lbl">Treno</span><span class="detail-val">${escapeHtml(g.treno)||'-'}</span></div>
+    <div class="detail-row"><span class="detail-lbl">Materiale</span><span class="detail-val">${escapeHtml(g.materiale)||'-'}</span></div>
+    <div class="detail-row"><span class="detail-lbl">Stazione</span><span class="detail-val">${escapeHtml(g.stazione)||'-'}</span></div>
+    <div class="detail-row"><span class="detail-lbl">Argomento</span><span class="detail-val">${escapeHtml(g.argomento)||'-'}</span></div>
+    <div class="detail-row"><span class="detail-lbl">Riparato</span><span class="detail-val">${g.riparato==='si'?'✅ Sì':'❌ No'}</span></div>
+    ${g.riparato==='no' && g.rientro ? `<div class="detail-row"><span class="detail-lbl">Rientrato dove</span><span class="detail-val">${escapeHtml(g.rientro)}</span></div>` : ''}
+    <div style="margin-top:12px">
+      <div class="detail-lbl" style="margin-bottom:6px">Descrizione breve</div>
+      <div class="detail-text">${escapeHtml(g.breve)||'-'}</div>
+    </div>
+    ${g.estesa ? `<div style="margin-top:12px"><div class="detail-lbl" style="margin-bottom:6px">Descrizione estesa</div><div class="detail-text">${escapeHtml(g.estesa)}</div></div>` : ''}
+  `;
+  document.getElementById('detailContent').innerHTML = html;
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function closeDetail(){
+  document.getElementById('detailOverlay').classList.remove('open');
+  selectedGuastoId = null;
+}
+function eliminaGuasto(){
+  if(!selectedGuastoId) return;
+  if(!confirm('Eliminare definitivamente questo guasto?')) return;
+  db.ref('guasti/'+selectedGuastoId).remove().then(()=>{
+    closeDetail();
+    showToast('Guasto eliminato');
+  });
+}
+
+/* ════════ NAVIGAZIONE ════════ */
+function switchPage(name, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ════════ TOAST ════════ */
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+initForm();
+listenGuasti();
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+</script>
+</body>
+</html>
