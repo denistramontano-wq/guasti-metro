@@ -92,6 +92,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-primary:active{background:var(--purple-dk)}
 .btn-primary:disabled{opacity:.5}
 .btn-secondary{width:100%;padding:14px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;border:none;background:var(--surface2);color:var(--text2);margin-top:8px}
+.link-btn{background:none;border:none;color:var(--text3);font-size:12.5px;font-weight:600;cursor:pointer;padding:8px;text-decoration:underline;text-underline-offset:2px}
 
 .req{color:var(--red)}
 .error-msg{color:var(--red);font-size:13px;font-weight:600;margin-top:10px;text-align:center}
@@ -241,6 +242,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="btn-primary" id="btnSalva" onclick="salvaGuasto()">Registra guasto</button>
         <div class="error-msg" id="formError"></div>
       </div>
+
+      <div style="text-align:center;margin-top:6px">
+        <button class="link-btn" onclick="apriGestioneMateriali()">⚙️ Gestisci materiali</button>
+      </div>
     </div>
 
     <!-- ── PAGINA: NUOVA SEGNALAZIONE ── -->
@@ -305,6 +310,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
         <button class="btn-primary" id="btnSalvaSeg" onclick="salvaSegnalazione()">Registra segnalazione</button>
         <div class="error-msg" id="formErrorSeg"></div>
+      </div>
+
+      <div style="text-align:center;margin-top:6px">
+        <button class="link-btn" onclick="apriGestioneMateriali()">⚙️ Gestisci materiali</button>
       </div>
     </div>
 
@@ -447,6 +456,48 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<!-- ── SHEET GESTIONE MATERIALI ── -->
+<div class="overlay" id="materialiOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2>Gestisci materiali</h2>
+    <div class="sec-sub" style="margin-bottom:14px">Aggiungi un nuovo treno (materiale) e le sue vetture</div>
+
+    <div class="field">
+      <label>Linea <span class="req">*</span></label>
+      <div class="line-select" id="lineSelectMat">
+        <label class="line-opt" data-line="M1"><input type="radio" name="lineaMat" value="M1"><div class="line-opt-box">M1</div></label>
+        <label class="line-opt" data-line="M2"><input type="radio" name="lineaMat" value="M2"><div class="line-opt-box">M2</div></label>
+        <label class="line-opt" data-line="M3"><input type="radio" name="lineaMat" value="M3"><div class="line-opt-box">M3</div></label>
+        <label class="line-opt" data-line="M4"><input type="radio" name="lineaMat" value="M4"><div class="line-opt-box">M4</div></label>
+        <label class="line-opt" data-line="M5"><input type="radio" name="lineaMat" value="M5"><div class="line-opt-box">M5</div></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Matricola materiale (treno) <span class="req">*</span></label>
+      <input type="text" id="mat-principale" placeholder="Es. 999" inputmode="numeric">
+    </div>
+
+    <div class="field">
+      <label>Vetture <span class="req">*</span> <span class="hint" style="display:inline">(separate da virgola, es. 999,1200,450)</span></label>
+      <input type="text" id="mat-vetture" placeholder="Es. 999,1200,450">
+    </div>
+
+    <button class="btn-primary" id="btnSalvaMateriale" onclick="salvaMateriale()">Aggiungi materiale</button>
+    <div class="error-msg" id="materialiError"></div>
+
+    <div style="margin-top:22px">
+      <div class="detail-lbl" style="margin-bottom:8px">Materiali aggiunti manualmente</div>
+      <div id="materialiExtraList"></div>
+    </div>
+
+    <div class="sheet-btns">
+      <button class="btn-cancel" onclick="chiudiGestioneMateriali()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -476,13 +527,22 @@ const ARGOMENTI = [
   "Impianto pneumatico","Impianto porte","Pantografo/Linea di contatto",
   "PIS","Segnalamento/ATC","Sottocassa","Trazione/Frenatura"
 ];
-const MATERIALI = {
+const MATERIALI_BASE = {
   M1: {"156":["156","282","1132"],"159":["158","159","1138"],"161":["160","161","1150"],"163":["162","163","1141"],"165":["164","165","1143"],"167":["166","167","1144"],"169":["168","169","1153"],"171":["170","171","1134"],"173":["172","173","1149"],"175":["174","175","1146"],"257":["256","257","1136"],"259":["258","259","1152"],"261":["260","261","1140"],"263":["262","263","1148"],"265":["264","265","1133"],"267":["266","267","1131"],"269":["268","269","1147"],"271":["270","271","1137"],"273":["272","273","1156"],"275":["274","275","1139"],"277":["276","277","1142"],"279":["278","279","1157"],"281":["280","281","1158"],"701":["701","702","1301"],"703":["703","704","1302"],"705":["705","706","1303"],"707":["707","708","1304"],"709":["709","710","1305"],"711":["711","712","1306"],"713":["713","714","1307"],"601":["601","602","1308"],"603":["603","604","1309"],"605":["605","606","1310"],"607":["607","608","1311"],"609":["609","610","1312"],"611":["611","612","1313"],"613":["613","614","1314"],"715":["715","716","1315"],"717":["717","718","1316"],"719":["719","720","1317"],"721":["721","722","1318"],"723":["723","724","1319"],"725":["725","726","1320"],"615":["615","616","1321"],"617":["617","618","1322"],"619":["619","620","1323"],"621":["621","622","1324"],"623":["623","624","1325"],"625":["625","626","1326"],"727":["727","728","1327"],"729":["729","730","1328"],"731":["731","732","1329"],"733":["733","734","1330"],"627":["627","628","1331"],"905":["805","806","905","906","3105","3106"],"907":["807","808","907","908","3107","3108"],"909":["809","810","909","910","3109","3110"],"911":["811","812","911","912","3111","3112"],"913":["813","814","913","914","3113","3114"],"915":["815","816","915","916","3115","3116"],"917":["817","818","917","918","3117","3118"],"961":["861","862","961","962","3161","3162"],"963":["863","864","963","964","3163","3164"],"965":["865","866","965","966","3165","3166"],"967":["867","868","967","968","3167","3168"],"969":["869","870","969","970","3169","3170"],"971":["871","872","971","972","3171","3172"],"973":["873","874","973","974","3173","3174"],"975":["875","876","975","976","3175","3176"],"977":["877","878","977","978","3177","3178"],"979":["879","880","979","980","3179","3180"],"981":["881","882","981","982","3181","3182"],"983":["883","884","983","984","3183","3184"],"985":["885","886","985","986","3185","3186"],"751":["651","652","751","752","3351","3352"],"753":["653","654","753","754","3353","3354"],"755":["655","656","755","756","3355","3356"],"757":["657","658","757","758","3357","3358"],"759":["659","660","759","760","3359","3360"],"761":["661","662","761","762","3361","3362"],"763":["663","664","763","764","3363","3364"],"765":["665","666","765","766","3365","3366"],"767":["667","668","767","768","3367","3368"],"769":["669","670","769","770","3369","3370"],"771":["671","672","771","772","3371","3372"],"773":["673","674","773","774","3373","3374"],"775":["675","676","775","776","3375","3376"],"777":["677","678","777","778","3377","3378"],"779":["679","680","779","780","3379","3380"],"781":["681","682","781","782","3381","3382"],"783":["683","684","783","784","3383","3384"],"785":["685","686","785","786","3385","3386"],"787":["687","688","787","788","3387","3388"],"789":["689","690","789","790","3389","3390"]},
   M2: {"901":["801","802","901","902","3101","3102"],"903":["803","804","903","904","3103","3104"],"921":["821","822","921","922","3121","3122"],"923":["823","824","923","924","3123","3124"],"925":["825","826","925","926","3125","3126"],"927":["827","828","927","928","3127","3128"],"929":["829","830","929","930","3129","3130"],"931":["831","832","931","932","3131","3132"],"933":["833","834","933","934","3133","3134"],"935":["835","836","935","936","3135","3136"],"937":["837","838","937","938","3137","3138"],"987":["887","888","987","988","3187","3188"],"989":["889","890","989","990","3189","3190"],"991":["891","892","991","992","3191","3192"],"993":["893","894","993","994","3193","3194"],"995":["895","896","995","996","3195","3196"],"997":["897","898","997","998","3197","3198"],"571":["471","472","571","572","3471","3472"],"573":["473","474","573","574","3473","3474"],"575":["475","476","575","576","3475","3476"],"577":["477","478","577","578","3477","3478"],"579":["479","480","579","580","3479","3480"],"581":["481","482","581","582","3481","3482"],"583":["483","484","583","584","3483","3484"],"585":["485","486","585","586","3485","3486"],"587":["487","488","587","588","3487","3488"],"589":["489","490","589","590","3489","3490"],"5001":["3401","3402","4001","4002","5001","5002"],"5003":["3403","3404","4003","4004","5003","5004"],"5005":["3405","3406","4005","4006","5005","5006"],"5007":["3407","3408","4007","4008","5007","5008"],"5009":["3409","3410","4009","4010","5009","5010"],"5011":["3411","3412","4011","4012","5011","5012"],"5013":["3413","3414","4013","4014","5013","5014"],"5015":["3415","3416","4015","4016","5015","5016"],"5017":["3417","3418","4017","4018","5017","5018"],"5019":["3419","3420","4019","4020","5019","5020"],"5021":["3421","3422","4021","4022","5021","5022"],"5023":["3423","3424","4023","4024","5023","5024"],"5025":["3425","3426","4025","4026","5025","5026"],"5027":["3427","3428","4027","4028","5027","5028"],"5029":["3429","3430","4029","4030","5029","5030"]},
   M3: {"941":["841","842","941","942","3141","3142"],"943":["843","844","943","944","3143","3144"],"945":["845","846","945","946","3145","3146"],"947":["847","848","947","948","3147","3148"],"949":["849","850","949","950","3149","3150"],"951":["851","852","951","952","3151","3152"],"953":["853","854","953","954","3153","3154"],"955":["855","856","955","956","3155","3156"],"957":["857","858","957","958","3157","3158"],"8001":["8001","8002","9001"],"8003":["8003","8004","9002"],"8005":["8005","8006","9003"],"8007":["8007","8008","9004"],"8009":["8009","8010","9005"],"8011":["8011","8012","9006"],"8013":["8013","8014","9007"],"8015":["8015","8016","9008"],"8017":["8017","8018","9009"],"8019":["8019","8020","9010"],"8021":["8021","8022","9011"],"8023":["8023","8024","9012"],"8025":["8025","8026","9013"],"8027":["8027","8028","9014"],"8029":["8029","8030","9015"],"8031":["8031","8032","9016"],"8033":["8033","8034","9017"],"8035":["8035","8036","9018"],"8037":["8037","8038","9019"],"8039":["8039","8040","9020"],"8045":["8045","8046","9023"],"8047":["8047","8048","9024"],"8049":["8049","8050","9025"],"8051":["8051","8052","9026"],"8053":["8053","8054","9027"],"8055":["8055","8056","9028"],"8057":["8057","8058","9029"],"8059":["8059","8060","9030"],"8061":["8061","8062","9031"],"8063":["8063","8064","9032"],"8065":["8065","8066","9033"],"8067":["8067","8068","9034"],"8069":["8069","8070","9035"],"8071":["8071","8072","9036"],"8073":["8073","8074","9037"],"8075":["8075","8076","9038"],"8077":["8077","8078","9039"],"8079":["8079","8080","9040"],"8101":["8101","8102","9101"],"8103":["8103","8104","9102"],"8105":["8105","8106","9103"],"8107":["8107","8108","9104"],"8109":["8109","8110","9105"]},
   M4: {"4401":["4401"],"4402":["4402"],"4403":["4403"],"4404":["4404"],"4405":["4405"],"4406":["4406"],"4407":["4407"],"4408":["4408"],"4409":["4409"],"4410":["4410"],"4411":["4411"],"4412":["4412"],"4413":["4413"],"4414":["4414"],"4415":["4415"],"4416":["4416"],"4417":["4417"],"4418":["4418"],"4419":["4419"],"4420":["4420"],"4421":["4421"],"4422":["4422"],"4423":["4423"],"4424":["4424"],"4425":["4425"],"4426":["4426"],"4427":["4427"],"4428":["4428"],"4429":["4429"],"4430":["4430"],"4431":["4431"],"4432":["4432"],"4433":["4433"],"4434":["4434"],"4435":["4435"],"4436":["4436"],"4437":["4437"],"4438":["4438"],"4439":["4439"],"4440":["4440"],"4441":["4441"],"4442":["4442"]},
   M5: {"5501":["5501"],"5502":["5502"],"5503":["5503"],"5504":["5504"],"5505":["5505"],"5506":["5506"],"5507":["5507"],"5508":["5508"],"5509":["5509"],"5510":["5510"],"5511":["5511"],"5512":["5512"],"5513":["5513"],"5514":["5514"],"5515":["5515"],"5516":["5516"],"5517":["5517"],"5518":["5518"],"5519":["5519"],"5520":["5520"],"5521":["5521"]}
 };
+let MATERIALI_EXTRA = { M1:{}, M2:{}, M3:{}, M4:{}, M5:{} };
+let MATERIALI = JSON.parse(JSON.stringify(MATERIALI_BASE));
+function ricalcolaMateriali(){
+  const merged = {};
+  ['M1','M2','M3','M4','M5'].forEach(linea=>{
+    merged[linea] = Object.assign({}, MATERIALI_BASE[linea], MATERIALI_EXTRA[linea] || {});
+  });
+  MATERIALI = merged;
+}
 const LINE_COLORS = {M1:"#D84040",M2:"#2E9E4F",M3:"#D9B400",M4:"#1E6FD9",M5:"#8C4DD9"};
 
 let allGuasti = {};
@@ -690,6 +750,16 @@ function listenSegnalazioni(){
     allSegnalazioni = snap.val() || {};
     aggiornaAnniDisponibiliSeg();
     renderElencoSeg();
+  });
+}
+function listenMaterialiExtra(){
+  db.ref('materiali_extra').on('value', snap=>{
+    const val = snap.val() || {};
+    MATERIALI_EXTRA = { M1:{}, M2:{}, M3:{}, M4:{}, M5:{} };
+    Object.assign(MATERIALI_EXTRA, val);
+    ['M1','M2','M3','M4','M5'].forEach(l=>{ if(!MATERIALI_EXTRA[l]) MATERIALI_EXTRA[l] = {}; });
+    ricalcolaMateriali();
+    renderMaterialiExtraList();
   });
 }
 function aggiornaAnniDisponibili(){
@@ -1046,6 +1116,81 @@ function caricaSegnalazioneNelForm(id, g){
   document.querySelector('.scroll-area').scrollTop = 0;
 }
 
+/* ════════ GESTIONE MATERIALI ════════ */
+function apriGestioneMateriali(){
+  document.getElementById('mat-principale').value = '';
+  document.getElementById('mat-vetture').value = '';
+  document.getElementById('materialiError').textContent = '';
+  document.querySelectorAll('input[name="lineaMat"]').forEach(r=>r.checked=false);
+  renderMaterialiExtraList();
+  document.getElementById('materialiOverlay').classList.add('open');
+}
+function chiudiGestioneMateriali(){
+  document.getElementById('materialiOverlay').classList.remove('open');
+}
+function salvaMateriale(){
+  const err = document.getElementById('materialiError');
+  err.textContent = '';
+  const linea = document.querySelector('input[name="lineaMat"]:checked')?.value;
+  const principale = document.getElementById('mat-principale').value.trim();
+  const vettureRaw = document.getElementById('mat-vetture').value.trim();
+
+  if(!linea){ err.textContent='Seleziona la linea.'; return; }
+  if(!principale){ err.textContent='Inserisci la matricola del materiale.'; return; }
+  if(!vettureRaw){ err.textContent='Inserisci almeno una vettura.'; return; }
+
+  const vetture = vettureRaw.split(',').map(v=>v.trim()).filter(v=>v);
+  if(vetture.length===0){ err.textContent='Inserisci almeno una vettura valida.'; return; }
+
+  if(MATERIALI[linea] && MATERIALI[linea][principale]){
+    if(!confirm(`Il materiale ${principale} esiste già su ${linea}. Vuoi sovrascriverlo?`)) return;
+  }
+
+  document.getElementById('btnSalvaMateriale').disabled = true;
+  db.ref(`materiali_extra/${linea}/${principale}`).set(vetture).then(()=>{
+    document.getElementById('btnSalvaMateriale').disabled = false;
+    document.getElementById('mat-principale').value = '';
+    document.getElementById('mat-vetture').value = '';
+    document.querySelectorAll('input[name="lineaMat"]').forEach(r=>r.checked=false);
+    showToast('Materiale aggiunto');
+  }).catch(e=>{
+    document.getElementById('btnSalvaMateriale').disabled = false;
+    err.textContent = 'Errore salvataggio: '+e.message;
+  });
+}
+function eliminaMateriale(linea, principale){
+  if(!confirm(`Eliminare il materiale ${principale} (${linea}) aggiunto manualmente?`)) return;
+  db.ref(`materiali_extra/${linea}/${principale}`).remove().then(()=>{
+    showToast('Materiale eliminato');
+  });
+}
+function renderMaterialiExtraList(){
+  const container = document.getElementById('materialiExtraList');
+  if(!container) return;
+  const rows = [];
+  ['M1','M2','M3','M4','M5'].forEach(linea=>{
+    const extra = MATERIALI_EXTRA[linea] || {};
+    Object.keys(extra).forEach(principale=>{
+      rows.push({linea, principale, vetture: extra[principale]});
+    });
+  });
+  if(rows.length===0){
+    container.innerHTML = `<div class="empty-state" style="padding:24px 12px"><div class="empty-sub">Nessun materiale aggiunto manualmente</div></div>`;
+    return;
+  }
+  container.innerHTML = rows.map(r=>{
+    const color = LINE_COLORS[r.linea] || '#888';
+    return `<div class="guasto-card" style="cursor:default">
+      <div class="guasto-top">
+        <span class="guasto-line-badge" style="background:${color}">${r.linea}</span>
+        <button class="link-btn" style="color:var(--red-fg)" onclick="eliminaMateriale('${r.linea}','${r.principale}')">Elimina</button>
+      </div>
+      <div class="guasto-title">Materiale ${escapeHtml(r.principale)}</div>
+      <div class="guasto-meta"><span>🚆 ${r.vetture.map(escapeHtml).join(', ')}</span></div>
+    </div>`;
+  }).join('');
+}
+
 /* ════════ NAVIGAZIONE ════════ */
 function switchPage(name, btn){
   if(name==='guasto' && editGuastoId){ resetForm(); }
@@ -1067,6 +1212,7 @@ function showToast(msg){
 initForm();
 listenGuasti();
 listenSegnalazioni();
+listenMaterialiExtra();
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 </script>
 </body>
