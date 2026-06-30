@@ -217,6 +217,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
 
         <div class="field">
+          <label>Descrizione predefinita <span class="hint" style="display:inline">(opzionale)</span></label>
+          <select id="f-breve-preset" onchange="applicaDescrizionePreset('f-breve', this.value)">
+            <option value="">Seleziona...</option>
+          </select>
+        </div>
+
+        <div class="field">
           <label>Descrizione breve <span class="req">*</span></label>
           <input type="text" id="f-breve" placeholder="Sintesi del guasto" maxlength="120">
         </div>
@@ -245,6 +252,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
       <div style="text-align:center;margin-top:6px">
         <button class="link-btn" onclick="apriGestioneMateriali()">⚙️ Gestisci materiali</button>
+        <button class="link-btn" onclick="apriGestioneDescrizioni()">📋 Gestisci descrizioni</button>
       </div>
     </div>
 
@@ -299,6 +307,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
 
         <div class="field">
+          <label>Descrizione predefinita <span class="hint" style="display:inline">(opzionale)</span></label>
+          <select id="s-breve-preset" onchange="applicaDescrizionePreset('s-breve', this.value)">
+            <option value="">Seleziona...</option>
+          </select>
+        </div>
+
+        <div class="field">
           <label>Descrizione breve <span class="req">*</span></label>
           <input type="text" id="s-breve" placeholder="Sintesi della segnalazione" maxlength="120">
         </div>
@@ -314,6 +329,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
       <div style="text-align:center;margin-top:6px">
         <button class="link-btn" onclick="apriGestioneMateriali()">⚙️ Gestisci materiali</button>
+        <button class="link-btn" onclick="apriGestioneDescrizioni()">📋 Gestisci descrizioni</button>
       </div>
     </div>
 
@@ -460,8 +476,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="overlay" id="materialiOverlay">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <h2>Gestisci materiali</h2>
-    <div class="sec-sub" style="margin-bottom:14px">Aggiungi un nuovo treno (materiale) e le sue vetture</div>
+    <h2 id="materialiTitle">Gestisci materiali</h2>
+    <div class="sec-sub" style="margin-bottom:14px" id="materialiSub">Aggiungi un nuovo materiale e le sue vetture</div>
 
     <div class="field">
       <label>Linea <span class="req">*</span></label>
@@ -485,15 +501,57 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
 
     <button class="btn-primary" id="btnSalvaMateriale" onclick="salvaMateriale()">Aggiungi materiale</button>
+    <button class="btn-secondary" id="btnAnnullaModificaMateriale" style="display:none" onclick="annullaModificaMateriale()">Annulla modifica</button>
     <div class="error-msg" id="materialiError"></div>
 
     <div style="margin-top:22px">
-      <div class="detail-lbl" style="margin-bottom:8px">Materiali aggiunti manualmente</div>
-      <div id="materialiExtraList"></div>
+      <div class="detail-lbl" style="margin-bottom:8px">Tutti i materiali</div>
+      <div class="search-bar" style="margin-bottom:10px">
+        <input type="text" id="materialiSearch" placeholder="Cerca matricola..." oninput="renderMaterialiList()">
+      </div>
+      <div class="filter-chips" id="materialiLineFilters" style="margin-bottom:10px">
+        <div class="f-chip active" data-f="ALL" onclick="setMaterialiLineFilter('ALL',this)">Tutte</div>
+        <div class="f-chip" data-f="M1" onclick="setMaterialiLineFilter('M1',this)">M1</div>
+        <div class="f-chip" data-f="M2" onclick="setMaterialiLineFilter('M2',this)">M2</div>
+        <div class="f-chip" data-f="M3" onclick="setMaterialiLineFilter('M3',this)">M3</div>
+        <div class="f-chip" data-f="M4" onclick="setMaterialiLineFilter('M4',this)">M4</div>
+        <div class="f-chip" data-f="M5" onclick="setMaterialiLineFilter('M5',this)">M5</div>
+      </div>
+      <div id="materialiFullList"></div>
     </div>
 
     <div class="sheet-btns">
       <button class="btn-cancel" onclick="chiudiGestioneMateriali()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SHEET GESTIONE DESCRIZIONI ── -->
+<div class="overlay" id="descrizioniOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="descrizioniTitle">Gestisci descrizioni</h2>
+    <div class="sec-sub" style="margin-bottom:14px" id="descrizioniSub">Aggiungi una descrizione breve predefinita, utilizzabile sia per i guasti che per le segnalazioni</div>
+
+    <div class="field">
+      <label>Testo descrizione <span class="req">*</span></label>
+      <input type="text" id="descr-testo" placeholder="Es. Porta bloccata in chiusura" maxlength="120">
+    </div>
+
+    <button class="btn-primary" id="btnSalvaDescrizione" onclick="salvaDescrizione()">Aggiungi descrizione</button>
+    <button class="btn-secondary" id="btnAnnullaModificaDescrizione" style="display:none" onclick="annullaModificaDescrizione()">Annulla modifica</button>
+    <div class="error-msg" id="descrizioniError"></div>
+
+    <div style="margin-top:22px">
+      <div class="detail-lbl" style="margin-bottom:8px">Tutte le descrizioni</div>
+      <div class="search-bar" style="margin-bottom:10px">
+        <input type="text" id="descrizioniSearch" placeholder="Cerca descrizione..." oninput="renderDescrizioniList()">
+      </div>
+      <div id="descrizioniFullList"></div>
+    </div>
+
+    <div class="sheet-btns">
+      <button class="btn-cancel" onclick="chiudiGestioneDescrizioni()">Chiudi</button>
     </div>
   </div>
 </div>
@@ -535,14 +593,22 @@ const MATERIALI_BASE = {
   M5: {"5501":["5501"],"5502":["5502"],"5503":["5503"],"5504":["5504"],"5505":["5505"],"5506":["5506"],"5507":["5507"],"5508":["5508"],"5509":["5509"],"5510":["5510"],"5511":["5511"],"5512":["5512"],"5513":["5513"],"5514":["5514"],"5515":["5515"],"5516":["5516"],"5517":["5517"],"5518":["5518"],"5519":["5519"],"5520":["5520"],"5521":["5521"]}
 };
 let MATERIALI_EXTRA = { M1:{}, M2:{}, M3:{}, M4:{}, M5:{} };
+let MATERIALI_DELETED = { M1:{}, M2:{}, M3:{}, M4:{}, M5:{} };
 let MATERIALI = JSON.parse(JSON.stringify(MATERIALI_BASE));
 function ricalcolaMateriali(){
   const merged = {};
   ['M1','M2','M3','M4','M5'].forEach(linea=>{
-    merged[linea] = Object.assign({}, MATERIALI_BASE[linea], MATERIALI_EXTRA[linea] || {});
+    const base = {};
+    Object.keys(MATERIALI_BASE[linea]).forEach(k=>{
+      if(!(MATERIALI_DELETED[linea] && MATERIALI_DELETED[linea][k])){
+        base[k] = MATERIALI_BASE[linea][k];
+      }
+    });
+    merged[linea] = Object.assign({}, base, MATERIALI_EXTRA[linea] || {});
   });
   MATERIALI = merged;
 }
+let DESCRIZIONI_PRESET = {}; // {id: testo}
 const LINE_COLORS = {M1:"#D84040",M2:"#2E9E4F",M3:"#D9B400",M4:"#1E6FD9",M5:"#8C4DD9"};
 
 let allGuasti = {};
@@ -759,7 +825,22 @@ function listenMaterialiExtra(){
     Object.assign(MATERIALI_EXTRA, val);
     ['M1','M2','M3','M4','M5'].forEach(l=>{ if(!MATERIALI_EXTRA[l]) MATERIALI_EXTRA[l] = {}; });
     ricalcolaMateriali();
-    renderMaterialiExtraList();
+    renderMaterialiList();
+  });
+  db.ref('materiali_deleted').on('value', snap=>{
+    const val = snap.val() || {};
+    MATERIALI_DELETED = { M1:{}, M2:{}, M3:{}, M4:{}, M5:{} };
+    Object.assign(MATERIALI_DELETED, val);
+    ['M1','M2','M3','M4','M5'].forEach(l=>{ if(!MATERIALI_DELETED[l]) MATERIALI_DELETED[l] = {}; });
+    ricalcolaMateriali();
+    renderMaterialiList();
+  });
+}
+function listenDescrizioniPreset(){
+  db.ref('descrizioni_preset').on('value', snap=>{
+    DESCRIZIONI_PRESET = snap.val() || {};
+    popolaSelectDescrizioniPreset();
+    renderDescrizioniList();
   });
 }
 function aggiornaAnniDisponibili(){
@@ -1117,16 +1198,34 @@ function caricaSegnalazioneNelForm(id, g){
 }
 
 /* ════════ GESTIONE MATERIALI ════════ */
+let materialiLineFilter = "ALL";
+let editMaterialeKey = null; // {linea, principale} se in modifica
+
 function apriGestioneMateriali(){
-  document.getElementById('mat-principale').value = '';
-  document.getElementById('mat-vetture').value = '';
-  document.getElementById('materialiError').textContent = '';
-  document.querySelectorAll('input[name="lineaMat"]').forEach(r=>r.checked=false);
-  renderMaterialiExtraList();
+  resetFormMateriale();
+  materialiLineFilter = "ALL";
+  document.querySelectorAll('#materialiLineFilters .f-chip').forEach(c=>c.classList.remove('active'));
+  document.querySelector('#materialiLineFilters .f-chip[data-f="ALL"]').classList.add('active');
+  document.getElementById('materialiSearch').value = '';
+  renderMaterialiList();
   document.getElementById('materialiOverlay').classList.add('open');
 }
 function chiudiGestioneMateriali(){
   document.getElementById('materialiOverlay').classList.remove('open');
+}
+function resetFormMateriale(){
+  document.getElementById('mat-principale').value = '';
+  document.getElementById('mat-vetture').value = '';
+  document.getElementById('materialiError').textContent = '';
+  document.querySelectorAll('input[name="lineaMat"]').forEach(r=>r.checked=false);
+  editMaterialeKey = null;
+  document.getElementById('btnSalvaMateriale').textContent = 'Aggiungi materiale';
+  document.getElementById('btnAnnullaModificaMateriale').style.display = 'none';
+  document.getElementById('materialiTitle').textContent = 'Gestisci materiali';
+  document.getElementById('materialiSub').textContent = 'Aggiungi un nuovo materiale e le sue vetture';
+}
+function annullaModificaMateriale(){
+  resetFormMateriale();
 }
 function salvaMateriale(){
   const err = document.getElementById('materialiError');
@@ -1142,51 +1241,224 @@ function salvaMateriale(){
   const vetture = vettureRaw.split(',').map(v=>v.trim()).filter(v=>v);
   if(vetture.length===0){ err.textContent='Inserisci almeno una vettura valida.'; return; }
 
-  if(MATERIALI[linea] && MATERIALI[linea][principale]){
+  const isEdit = !!editMaterialeKey;
+  // Se è una nuova matricola (non in edit) e collide con uno esistente su qualunque linea/extra, avvisa
+  if(!isEdit && MATERIALI[linea] && MATERIALI[linea][principale]){
     if(!confirm(`Il materiale ${principale} esiste già su ${linea}. Vuoi sovrascriverlo?`)) return;
   }
+  // Se in modifica e la matricola/linea è cambiata rispetto all'originale, rimuoviamo prima la versione precedente
+  const keyChanged = isEdit && (editMaterialeKey.linea !== linea || editMaterialeKey.principale !== principale);
 
   document.getElementById('btnSalvaMateriale').disabled = true;
-  db.ref(`materiali_extra/${linea}/${principale}`).set(vetture).then(()=>{
+
+  const doSave = ()=> db.ref(`materiali_extra/${linea}/${principale}`).set(vetture);
+
+  let chain = Promise.resolve();
+  if(keyChanged){
+    // rimuove riferimento precedente: se era un materiale base, lo segna come eliminato; se era extra, lo elimina
+    const wasBase = !!(MATERIALI_BASE[editMaterialeKey.linea] && MATERIALI_BASE[editMaterialeKey.linea][editMaterialeKey.principale]);
+    if(wasBase){
+      chain = chain.then(()=> db.ref(`materiali_deleted/${editMaterialeKey.linea}/${editMaterialeKey.principale}`).set(true));
+    } else {
+      chain = chain.then(()=> db.ref(`materiali_extra/${editMaterialeKey.linea}/${editMaterialeKey.principale}`).remove());
+    }
+  }
+
+  chain.then(doSave).then(()=>{
     document.getElementById('btnSalvaMateriale').disabled = false;
-    document.getElementById('mat-principale').value = '';
-    document.getElementById('mat-vetture').value = '';
-    document.querySelectorAll('input[name="lineaMat"]').forEach(r=>r.checked=false);
-    showToast('Materiale aggiunto');
+    resetFormMateriale();
+    showToast(isEdit ? 'Materiale aggiornato' : 'Materiale aggiunto');
   }).catch(e=>{
     document.getElementById('btnSalvaMateriale').disabled = false;
     err.textContent = 'Errore salvataggio: '+e.message;
   });
 }
-function eliminaMateriale(linea, principale){
-  if(!confirm(`Eliminare il materiale ${principale} (${linea}) aggiunto manualmente?`)) return;
-  db.ref(`materiali_extra/${linea}/${principale}`).remove().then(()=>{
-    showToast('Materiale eliminato');
-  });
+function modificaMateriale(linea, principale){
+  const vetture = (MATERIALI[linea] && MATERIALI[linea][principale]) || [];
+  editMaterialeKey = {linea, principale};
+  const radio = document.querySelector(`input[name="lineaMat"][value="${linea}"]`);
+  if(radio) radio.checked = true;
+  document.getElementById('mat-principale').value = principale;
+  document.getElementById('mat-vetture').value = vetture.join(',');
+  document.getElementById('materialiError').textContent = '';
+  document.getElementById('btnSalvaMateriale').textContent = 'Salva modifiche';
+  document.getElementById('btnAnnullaModificaMateriale').style.display = 'block';
+  document.getElementById('materialiTitle').textContent = 'Modifica materiale';
+  document.getElementById('materialiSub').textContent = `Stai modificando il materiale ${principale} (${linea})`;
+  document.querySelector('#materialiOverlay .sheet').scrollTop = 0;
 }
-function renderMaterialiExtraList(){
-  const container = document.getElementById('materialiExtraList');
+function eliminaMateriale(linea, principale){
+  const wasBase = !!(MATERIALI_BASE[linea] && MATERIALI_BASE[linea][principale]);
+  const msg = wasBase
+    ? `Eliminare il materiale ${principale} (${linea})? È un materiale della lista originale: verrà nascosto ma potrai ripristinarlo dal codice se necessario.`
+    : `Eliminare il materiale ${principale} (${linea}) aggiunto manualmente?`;
+  if(!confirm(msg)) return;
+
+  if(wasBase){
+    db.ref(`materiali_deleted/${linea}/${principale}`).set(true).then(()=>{
+      showToast('Materiale eliminato');
+    });
+  } else {
+    db.ref(`materiali_extra/${linea}/${principale}`).remove().then(()=>{
+      showToast('Materiale eliminato');
+    });
+  }
+  if(editMaterialeKey && editMaterialeKey.linea===linea && editMaterialeKey.principale===principale){
+    resetFormMateriale();
+  }
+}
+function setMaterialiLineFilter(f, el){
+  materialiLineFilter = f;
+  el.parentElement.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderMaterialiList();
+}
+function renderMaterialiList(){
+  const container = document.getElementById('materialiFullList');
   if(!container) return;
+  const q = (document.getElementById('materialiSearch').value || '').trim().toLowerCase();
+
+  const linee = materialiLineFilter==='ALL' ? ['M1','M2','M3','M4','M5'] : [materialiLineFilter];
   const rows = [];
-  ['M1','M2','M3','M4','M5'].forEach(linea=>{
-    const extra = MATERIALI_EXTRA[linea] || {};
-    Object.keys(extra).forEach(principale=>{
-      rows.push({linea, principale, vetture: extra[principale]});
+  linee.forEach(linea=>{
+    const mat = MATERIALI[linea] || {};
+    Object.keys(mat).forEach(principale=>{
+      if(q && !principale.toLowerCase().includes(q) && !mat[principale].some(v=>v.toLowerCase().includes(q))) return;
+      const isExtra = !!(MATERIALI_EXTRA[linea] && MATERIALI_EXTRA[linea][principale]);
+      const isBase = !!(MATERIALI_BASE[linea] && MATERIALI_BASE[linea][principale]);
+      rows.push({linea, principale, vetture: mat[principale], origine: isExtra ? (isBase ? 'modificato' : 'manuale') : 'base'});
     });
   });
+  rows.sort((a,b)=> a.linea===b.linea ? (parseInt(a.principale)-parseInt(b.principale)) : a.linea.localeCompare(b.linea));
+
   if(rows.length===0){
-    container.innerHTML = `<div class="empty-state" style="padding:24px 12px"><div class="empty-sub">Nessun materiale aggiunto manualmente</div></div>`;
+    container.innerHTML = `<div class="empty-state" style="padding:24px 12px"><div class="empty-icon">🔍</div><div class="empty-sub">Nessun materiale trovato</div></div>`;
     return;
   }
+
+  const badgeLabel = {base:'', manuale:'✏️ manuale', modificato:'✏️ modificato'};
   container.innerHTML = rows.map(r=>{
     const color = LINE_COLORS[r.linea] || '#888';
+    const tag = badgeLabel[r.origine] ? `<span class="status-pill riparato" style="font-size:10px;padding:2px 8px">${badgeLabel[r.origine]}</span>` : '';
     return `<div class="guasto-card" style="cursor:default">
       <div class="guasto-top">
         <span class="guasto-line-badge" style="background:${color}">${r.linea}</span>
-        <button class="link-btn" style="color:var(--red-fg)" onclick="eliminaMateriale('${r.linea}','${r.principale}')">Elimina</button>
+        <div style="display:flex;gap:10px;align-items:center">
+          ${tag}
+          <button class="link-btn" onclick="modificaMateriale('${r.linea}','${r.principale}')">Modifica</button>
+          <button class="link-btn" style="color:var(--red-fg)" onclick="eliminaMateriale('${r.linea}','${r.principale}')">Elimina</button>
+        </div>
       </div>
       <div class="guasto-title">Materiale ${escapeHtml(r.principale)}</div>
       <div class="guasto-meta"><span>🚆 ${r.vetture.map(escapeHtml).join(', ')}</span></div>
+    </div>`;
+  }).join('');
+}
+
+/* ════════ GESTIONE DESCRIZIONI PREDEFINITE ════════ */
+let editDescrizioneId = null;
+
+function popolaSelectDescrizioniPreset(){
+  ['f-breve-preset','s-breve-preset'].forEach(selId=>{
+    const sel = document.getElementById(selId);
+    if(!sel) return;
+    const current = sel.value;
+    sel.innerHTML = '<option value="">Seleziona...</option>';
+    Object.entries(DESCRIZIONI_PRESET).forEach(([id, testo])=>{
+      const o = document.createElement('option');
+      o.value = id; o.textContent = testo;
+      sel.appendChild(o);
+    });
+    if(Array.from(sel.options).some(o=>o.value===current)) sel.value = current;
+  });
+}
+function applicaDescrizionePreset(targetFieldId, presetId){
+  if(!presetId) return;
+  const testo = DESCRIZIONI_PRESET[presetId];
+  if(testo) document.getElementById(targetFieldId).value = testo;
+}
+function apriGestioneDescrizioni(){
+  resetFormDescrizione();
+  document.getElementById('descrizioniSearch').value = '';
+  renderDescrizioniList();
+  document.getElementById('descrizioniOverlay').classList.add('open');
+}
+function chiudiGestioneDescrizioni(){
+  document.getElementById('descrizioniOverlay').classList.remove('open');
+}
+function resetFormDescrizione(){
+  document.getElementById('descr-testo').value = '';
+  document.getElementById('descrizioniError').textContent = '';
+  editDescrizioneId = null;
+  document.getElementById('btnSalvaDescrizione').textContent = 'Aggiungi descrizione';
+  document.getElementById('btnAnnullaModificaDescrizione').style.display = 'none';
+  document.getElementById('descrizioniTitle').textContent = 'Gestisci descrizioni';
+  document.getElementById('descrizioniSub').textContent = 'Aggiungi una descrizione breve predefinita, utilizzabile sia per i guasti che per le segnalazioni';
+}
+function annullaModificaDescrizione(){
+  resetFormDescrizione();
+}
+function salvaDescrizione(){
+  const err = document.getElementById('descrizioniError');
+  err.textContent = '';
+  const testo = document.getElementById('descr-testo').value.trim();
+  if(!testo){ err.textContent='Inserisci il testo della descrizione.'; return; }
+
+  const isEdit = !!editDescrizioneId;
+  const id = isEdit ? editDescrizioneId : db.ref('descrizioni_preset').push().key;
+
+  document.getElementById('btnSalvaDescrizione').disabled = true;
+  db.ref(`descrizioni_preset/${id}`).set(testo).then(()=>{
+    document.getElementById('btnSalvaDescrizione').disabled = false;
+    resetFormDescrizione();
+    showToast(isEdit ? 'Descrizione aggiornata' : 'Descrizione aggiunta');
+  }).catch(e=>{
+    document.getElementById('btnSalvaDescrizione').disabled = false;
+    err.textContent = 'Errore salvataggio: '+e.message;
+  });
+}
+function modificaDescrizione(id){
+  const testo = DESCRIZIONI_PRESET[id];
+  if(testo===undefined) return;
+  editDescrizioneId = id;
+  document.getElementById('descr-testo').value = testo;
+  document.getElementById('descrizioniError').textContent = '';
+  document.getElementById('btnSalvaDescrizione').textContent = 'Salva modifiche';
+  document.getElementById('btnAnnullaModificaDescrizione').style.display = 'block';
+  document.getElementById('descrizioniTitle').textContent = 'Modifica descrizione';
+  document.getElementById('descrizioniSub').textContent = 'Stai modificando una descrizione predefinita';
+  document.querySelector('#descrizioniOverlay .sheet').scrollTop = 0;
+}
+function eliminaDescrizione(id){
+  if(!confirm('Eliminare questa descrizione predefinita?')) return;
+  db.ref(`descrizioni_preset/${id}`).remove().then(()=>{
+    showToast('Descrizione eliminata');
+  });
+  if(editDescrizioneId===id) resetFormDescrizione();
+}
+function renderDescrizioniList(){
+  const container = document.getElementById('descrizioniFullList');
+  if(!container) return;
+  const q = (document.getElementById('descrizioniSearch').value || '').trim().toLowerCase();
+
+  let entries = Object.entries(DESCRIZIONI_PRESET);
+  if(q) entries = entries.filter(([id,testo])=> testo.toLowerCase().includes(q));
+  entries.sort((a,b)=> a[1].localeCompare(b[1]));
+
+  if(entries.length===0){
+    container.innerHTML = `<div class="empty-state" style="padding:24px 12px"><div class="empty-icon">🔍</div><div class="empty-sub">Nessuna descrizione trovata</div></div>`;
+    return;
+  }
+
+  container.innerHTML = entries.map(([id,testo])=>{
+    return `<div class="guasto-card" style="cursor:default">
+      <div class="guasto-top">
+        <div class="guasto-title" style="margin-bottom:0">${escapeHtml(testo)}</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-shrink:0">
+          <button class="link-btn" onclick="modificaDescrizione('${id}')">Modifica</button>
+          <button class="link-btn" style="color:var(--red-fg)" onclick="eliminaDescrizione('${id}')">Elimina</button>
+        </div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1213,6 +1485,7 @@ initForm();
 listenGuasti();
 listenSegnalazioni();
 listenMaterialiExtra();
+listenDescrizioniPreset();
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 </script>
 </body>
