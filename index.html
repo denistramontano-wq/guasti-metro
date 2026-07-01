@@ -211,13 +211,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
 
         <div class="field">
-          <label>Argomento <span class="req">*</span></label>
-          <select id="f-argomento">
-            <option value="">Seleziona...</option>
-          </select>
-        </div>
-
-        <div class="field">
           <label>Descrizione predefinita <span class="hint" style="display:inline">(opzionale)</span></label>
           <select id="f-breve-preset" onchange="applicaDescrizionePreset('f-breve', this.value)">
             <option value="">Seleziona...</option>
@@ -298,13 +291,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <label>Vettura <span class="hint" style="display:inline">(matricola)</span></label>
             <select id="s-vettura"><option value="">Seleziona materiale prima</option></select>
           </div>
-        </div>
-
-        <div class="field">
-          <label>Argomento <span class="req">*</span></label>
-          <select id="s-argomento">
-            <option value="">Seleziona...</option>
-          </select>
         </div>
 
         <div class="field">
@@ -392,6 +378,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
         </div>
 
+        <div class="field-row" style="margin-bottom:14px">
+          <div class="field" style="margin-bottom:0">
+            <label>Giorno specifico</label>
+            <input type="date" id="dayFilter" onchange="renderElenco()">
+          </div>
+          <div class="field" style="margin-bottom:0;display:flex;align-items:flex-end">
+            <button class="btn-secondary" style="margin-top:0;width:100%;padding:12px" onclick="document.getElementById('dayFilter').value='';renderElenco()">✕ Reset</button>
+          </div>
+        </div>
+
         <button class="btn-secondary" style="margin-top:0;margin-bottom:14px" onclick="scaricaCSV()">⬇️ Scarica elenco (CSV)</button>
 
         <div id="elencoList"></div>
@@ -435,6 +431,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <select id="yearFilterSeg" onchange="renderElencoSeg()">
               <option value="ALL">Tutti gli anni</option>
             </select>
+          </div>
+        </div>
+
+        <div class="field-row" style="margin-bottom:14px">
+          <div class="field" style="margin-bottom:0">
+            <label>Giorno specifico</label>
+            <input type="date" id="dayFilterSeg" onchange="renderElencoSeg()">
+          </div>
+          <div class="field" style="margin-bottom:0;display:flex;align-items:flex-end">
+            <button class="btn-secondary" style="margin-top:0;width:100%;padding:12px" onclick="document.getElementById('dayFilterSeg').value='';renderElencoSeg()">✕ Reset</button>
           </div>
         </div>
 
@@ -584,11 +590,6 @@ const STAZIONI = {
   M4: ["Argonne","Bolivar","Dateo","De Amicis","Forlanini FS","Frattini","Gelsomini","Inganni","Linate Aeroporto","S.Ambrogio","San Babila","San Cristoforo","Segneri","Sforza Policlinico","Susa","Tolstoj","Tricolore","Vetra"],
   M5: ["Bicocca","Bignami","Ca' Granda","Cenisio","Comasina","Domodossola","Garibaldi","Gerusalemme","Istria","Lotto","Marche","Monumentale","Ponale","Portello","San Siro Ippodromo","San Siro Stadio","Tre Torri","Zara"]
 };
-const ARGOMENTI = [
-  "Arredamento","Cabina di guida","Climatizzazione","Illuminazione","Impianti ausiliari",
-  "Impianto pneumatico","Impianto porte","Pantografo/Linea di contatto",
-  "PIS","Segnalamento/ATC","Sottocassa","Trazione/Frenatura"
-];
 const MATERIALI_BASE = {
   M1: {"156":["156","282","1132"],"159":["158","159","1138"],"161":["160","161","1150"],"163":["162","163","1141"],"165":["164","165","1143"],"167":["166","167","1144"],"169":["168","169","1153"],"171":["170","171","1134"],"173":["172","173","1149"],"175":["174","175","1146"],"257":["256","257","1136"],"259":["258","259","1152"],"261":["260","261","1140"],"263":["262","263","1148"],"265":["264","265","1133"],"267":["266","267","1131"],"269":["268","269","1147"],"271":["270","271","1137"],"273":["272","273","1156"],"275":["274","275","1139"],"277":["276","277","1142"],"279":["278","279","1157"],"281":["280","281","1158"],"701":["701","702","1301"],"703":["703","704","1302"],"705":["705","706","1303"],"707":["707","708","1304"],"709":["709","710","1305"],"711":["711","712","1306"],"713":["713","714","1307"],"601":["601","602","1308"],"603":["603","604","1309"],"605":["605","606","1310"],"607":["607","608","1311"],"609":["609","610","1312"],"611":["611","612","1313"],"613":["613","614","1314"],"715":["715","716","1315"],"717":["717","718","1316"],"719":["719","720","1317"],"721":["721","722","1318"],"723":["723","724","1319"],"725":["725","726","1320"],"615":["615","616","1321"],"617":["617","618","1322"],"619":["619","620","1323"],"621":["621","622","1324"],"623":["623","624","1325"],"625":["625","626","1326"],"727":["727","728","1327"],"729":["729","730","1328"],"731":["731","732","1329"],"733":["733","734","1330"],"627":["627","628","1331"],"905":["805","806","905","906","3105","3106"],"907":["807","808","907","908","3107","3108"],"909":["809","810","909","910","3109","3110"],"911":["811","812","911","912","3111","3112"],"913":["813","814","913","914","3113","3114"],"915":["815","816","915","916","3115","3116"],"917":["817","818","917","918","3117","3118"],"961":["861","862","961","962","3161","3162"],"963":["863","864","963","964","3163","3164"],"965":["865","866","965","966","3165","3166"],"967":["867","868","967","968","3167","3168"],"969":["869","870","969","970","3169","3170"],"971":["871","872","971","972","3171","3172"],"973":["873","874","973","974","3173","3174"],"975":["875","876","975","976","3175","3176"],"977":["877","878","977","978","3177","3178"],"979":["879","880","979","980","3179","3180"],"981":["881","882","981","982","3181","3182"],"983":["883","884","983","984","3183","3184"],"985":["885","886","985","986","3185","3186"],"751":["651","652","751","752","3351","3352"],"753":["653","654","753","754","3353","3354"],"755":["655","656","755","756","3355","3356"],"757":["657","658","757","758","3357","3358"],"759":["659","660","759","760","3359","3360"],"761":["661","662","761","762","3361","3362"],"763":["663","664","763","764","3363","3364"],"765":["665","666","765","766","3365","3366"],"767":["667","668","767","768","3367","3368"],"769":["669","670","769","770","3369","3370"],"771":["671","672","771","772","3371","3372"],"773":["673","674","773","774","3373","3374"],"775":["675","676","775","776","3375","3376"],"777":["677","678","777","778","3377","3378"],"779":["679","680","779","780","3379","3380"],"781":["681","682","781","782","3381","3382"],"783":["683","684","783","784","3383","3384"],"785":["685","686","785","786","3385","3386"],"787":["687","688","787","788","3387","3388"],"789":["689","690","789","790","3389","3390"]},
   M2: {"901":["801","802","901","902","3101","3102"],"903":["803","804","903","904","3103","3104"],"921":["821","822","921","922","3121","3122"],"923":["823","824","923","924","3123","3124"],"925":["825","826","925","926","3125","3126"],"927":["827","828","927","928","3127","3128"],"929":["829","830","929","930","3129","3130"],"931":["831","832","931","932","3131","3132"],"933":["833","834","933","934","3133","3134"],"935":["835","836","935","936","3135","3136"],"937":["837","838","937","938","3137","3138"],"987":["887","888","987","988","3187","3188"],"989":["889","890","989","990","3189","3190"],"991":["891","892","991","992","3191","3192"],"993":["893","894","993","994","3193","3194"],"995":["895","896","995","996","3195","3196"],"997":["897","898","997","998","3197","3198"],"571":["471","472","571","572","3471","3472"],"573":["473","474","573","574","3473","3474"],"575":["475","476","575","576","3475","3476"],"577":["477","478","577","578","3477","3478"],"579":["479","480","579","580","3479","3480"],"581":["481","482","581","582","3481","3482"],"583":["483","484","583","584","3483","3484"],"585":["485","486","585","586","3485","3486"],"587":["487","488","587","588","3487","3488"],"589":["489","490","589","590","3489","3490"],"5001":["3401","3402","4001","4002","5001","5002"],"5003":["3403","3404","4003","4004","5003","5004"],"5005":["3405","3406","4005","4006","5005","5006"],"5007":["3407","3408","4007","4008","5007","5008"],"5009":["3409","3410","4009","4010","5009","5010"],"5011":["3411","3412","4011","4012","5011","5012"],"5013":["3413","3414","4013","4014","5013","5014"],"5015":["3415","3416","4015","4016","5015","5016"],"5017":["3417","3418","4017","4018","5017","5018"],"5019":["3419","3420","4019","4020","5019","5020"],"5021":["3421","3422","4021","4022","5021","5022"],"5023":["3423","3424","4023","4024","5023","5024"],"5025":["3425","3426","4025","4026","5025","5026"],"5027":["3427","3428","4027","4028","5027","5028"],"5029":["3429","3430","4029","4030","5029","5030"]},
@@ -633,14 +634,6 @@ function initForm(){
   document.getElementById('s-data').value = today.toISOString().slice(0,10);
   document.getElementById('s-ora').value = today.toTimeString().slice(0,5);
 
-  const sel = document.getElementById('f-argomento');
-  ARGOMENTI.forEach(a=>{
-    const o = document.createElement('option'); o.value=a; o.textContent=a; sel.appendChild(o);
-  });
-  const selSeg = document.getElementById('s-argomento');
-  ARGOMENTI.forEach(a=>{
-    const o = document.createElement('option'); o.value=a; o.textContent=a; selSeg.appendChild(o);
-  });
 
   document.querySelectorAll('input[name="linea"]').forEach(r=>{
     r.addEventListener('change', ()=>{
@@ -700,7 +693,6 @@ function salvaGuasto(){
   const vettura = document.getElementById('f-vettura').value.trim();
   const numeroTreno = document.getElementById('f-numerotreno').value.trim();
   const stazione = document.getElementById('f-stazione').value;
-  const argomento = document.getElementById('f-argomento').value;
   const breve = document.getElementById('f-breve').value.trim();
   const estesa = document.getElementById('f-estesa').value.trim();
   const riparatoEl = document.querySelector('input[name="riparato"]:checked');
@@ -710,13 +702,12 @@ function salvaGuasto(){
   if(!linea){ err.textContent='Seleziona la linea.'; return; }
   if(!data || !ora){ err.textContent='Inserisci data e ora.'; return; }
   if(!stazione){ err.textContent='Seleziona la stazione evento.'; return; }
-  if(!argomento){ err.textContent='Seleziona un argomento.'; return; }
   if(!breve){ err.textContent='Inserisci la descrizione breve.'; return; }
   if(!riparato){ err.textContent='Indica se il guasto è stato riparato.'; return; }
 
   const isEdit = !!editGuastoId;
   const record = {
-    linea, data, ora, materiale, vettura, numeroTreno, stazione, argomento, breve, estesa,
+    linea, data, ora, materiale, vettura, numeroTreno, stazione, breve, estesa,
     riparato, rientro: riparato==='no' ? rientro : '',
     creato: isEdit ? (allGuasti[editGuastoId]?.creato || Date.now()) : Date.now()
   };
@@ -742,7 +733,6 @@ function resetForm(){
   document.getElementById('f-vettura').innerHTML='<option value="">Seleziona materiale prima</option>';
   document.getElementById('f-numerotreno').value='';
   document.getElementById('f-stazione').innerHTML='<option value="">Seleziona linea prima</option>';
-  document.getElementById('f-argomento').value='';
   document.getElementById('f-breve').value='';
   document.getElementById('f-estesa').value='';
   document.getElementById('f-rientro').value='';
@@ -763,18 +753,16 @@ function salvaSegnalazione(){
   const ora = document.getElementById('s-ora').value;
   const materiale = document.getElementById('s-materiale').value.trim();
   const vettura = document.getElementById('s-vettura').value.trim();
-  const argomento = document.getElementById('s-argomento').value;
   const breve = document.getElementById('s-breve').value.trim();
   const estesa = document.getElementById('s-estesa').value.trim();
 
   if(!linea){ err.textContent='Seleziona la linea.'; return; }
   if(!data || !ora){ err.textContent='Inserisci data e ora.'; return; }
-  if(!argomento){ err.textContent='Seleziona un argomento.'; return; }
   if(!breve){ err.textContent='Inserisci la descrizione breve.'; return; }
 
   const isEdit = !!editSegId;
   const record = {
-    linea, data, ora, materiale, vettura, argomento, breve, estesa,
+    linea, data, ora, materiale, vettura, breve, estesa,
     creato: isEdit ? (allSegnalazioni[editSegId]?.creato || Date.now()) : Date.now()
   };
 
@@ -796,7 +784,6 @@ function resetFormSeg(){
   document.querySelectorAll('input[name="lineaSeg"]').forEach(r=>r.checked=false);
   document.getElementById('s-materiale').innerHTML='<option value="">Seleziona linea prima</option>';
   document.getElementById('s-vettura').innerHTML='<option value="">Seleziona materiale prima</option>';
-  document.getElementById('s-argomento').value='';
   document.getElementById('s-breve').value='';
   document.getElementById('s-estesa').value='';
   const today = new Date();
@@ -901,15 +888,20 @@ function getFilteredEntries(){
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
   const mese = document.getElementById('monthFilter').value;
   const anno = document.getElementById('yearFilter').value;
+  const giorno = document.getElementById('dayFilter').value; // YYYY-MM-DD o ''
   let entries = Object.entries(allGuasti);
 
   entries = entries.filter(([id,g])=>{
     if(lineFilter!=='ALL' && g.linea!==lineFilter) return false;
     if(statusFilter!=='ALL' && g.riparato!==statusFilter) return false;
-    if(mese!=='ALL' && (!g.data || g.data.slice(5,7)!==mese)) return false;
-    if(anno!=='ALL' && (!g.data || g.data.slice(0,4)!==anno)) return false;
+    if(giorno){
+      if(g.data !== giorno) return false;
+    } else {
+      if(mese!=='ALL' && (!g.data || g.data.slice(5,7)!==mese)) return false;
+      if(anno!=='ALL' && (!g.data || g.data.slice(0,4)!==anno)) return false;
+    }
     if(q){
-      const hay = [g.breve,g.estesa,g.materiale,g.vettura,g.numeroTreno,g.stazione,g.argomento].join(' ').toLowerCase();
+      const hay = [g.breve,g.estesa,g.materiale,g.vettura,g.numeroTreno,g.stazione].join(' ').toLowerCase();
       if(!hay.includes(q)) return false;
     }
     return true;
@@ -944,7 +936,6 @@ function renderElenco(){
       <div class="guasto-meta">
         <span>📍 ${escapeHtml(g.stazione||'-')}</span>
         ${(g.materiale||g.vettura)?`<span>🚆 ${escapeHtml(g.materiale||'-')}-${escapeHtml(g.vettura||'-')}</span>`:''}
-        <span>🏷️ ${escapeHtml(g.argomento||'-')}</span>
       </div>
       <div style="margin-top:8px"><span class="status-pill ${statusClass}">${statusLabel}</span></div>
     </div>`;
@@ -954,14 +945,19 @@ function getFilteredEntriesSeg(){
   const q = document.getElementById('searchInputSeg').value.trim().toLowerCase();
   const mese = document.getElementById('monthFilterSeg').value;
   const anno = document.getElementById('yearFilterSeg').value;
+  const giorno = document.getElementById('dayFilterSeg').value;
   let entries = Object.entries(allSegnalazioni);
 
   entries = entries.filter(([id,g])=>{
     if(lineFilterSeg!=='ALL' && g.linea!==lineFilterSeg) return false;
-    if(mese!=='ALL' && (!g.data || g.data.slice(5,7)!==mese)) return false;
-    if(anno!=='ALL' && (!g.data || g.data.slice(0,4)!==anno)) return false;
+    if(giorno){
+      if(g.data !== giorno) return false;
+    } else {
+      if(mese!=='ALL' && (!g.data || g.data.slice(5,7)!==mese)) return false;
+      if(anno!=='ALL' && (!g.data || g.data.slice(0,4)!==anno)) return false;
+    }
     if(q){
-      const hay = [g.breve,g.estesa,g.materiale,g.vettura,g.argomento].join(' ').toLowerCase();
+      const hay = [g.breve,g.estesa,g.materiale,g.vettura].join(' ').toLowerCase();
       if(!hay.includes(q)) return false;
     }
     return true;
@@ -994,7 +990,6 @@ function renderElencoSeg(){
       <div class="guasto-meta">
         ${g.materiale?`<span>🚆 ${escapeHtml(g.materiale)}</span>`:''}
         ${g.vettura?`<span>🔧 ${escapeHtml(g.vettura)}</span>`:''}
-        <span>🏷️ ${escapeHtml(g.argomento||'-')}</span>
       </div>
     </div>`;
   }).join('');
@@ -1008,12 +1003,12 @@ function scaricaCSV(){
   const entries = getFilteredEntries();
   if(entries.length===0){ showToast('Nessun guasto da esportare'); return; }
 
-  const headers = ['Linea','Data','Ora','Materiale','Vettura','Numero treno','Stazione','Argomento','Descrizione breve','Descrizione estesa','Riparato','Rientrato dove'];
+  const headers = ['Linea','Data','Ora','Materiale','Vettura','Numero treno','Stazione','Descrizione breve','Descrizione estesa','Riparato','Rientrato dove'];
   const rows = entries.map(([id,g])=>{
     const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '';
     return [
       g.linea||'', dataFmt, g.ora||'', g.materiale||'', g.vettura||'', g.numeroTreno||'', g.stazione||'',
-      g.argomento||'', g.breve||'', g.estesa||'',
+      g.breve||'', g.estesa||'',
       g.riparato==='si' ? 'Sì' : 'No',
       g.riparato==='no' ? (g.rientro||'') : ''
     ].map(csvEscape).join(';');
@@ -1037,11 +1032,11 @@ function scaricaCSVSeg(){
   const entries = getFilteredEntriesSeg();
   if(entries.length===0){ showToast('Nessuna segnalazione da esportare'); return; }
 
-  const headers = ['Linea','Data','Ora','Materiale','Vettura','Argomento','Descrizione breve','Descrizione estesa'];
+  const headers = ['Linea','Data','Ora','Materiale','Vettura','Descrizione breve','Descrizione estesa'];
   const rows = entries.map(([id,g])=>{
     const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '';
     return [
-      g.linea||'', dataFmt, g.ora||'', g.materiale||'', g.vettura||'', g.argomento||'', g.breve||'', g.estesa||''
+      g.linea||'', dataFmt, g.ora||'', g.materiale||'', g.vettura||'', g.breve||'', g.estesa||''
     ].map(csvEscape).join(';');
   });
   const csv = '\uFEFF' + headers.join(';') + '\n' + rows.join('\n');
@@ -1082,7 +1077,6 @@ function openDetail(tipo, id){
       <div class="detail-row"><span class="detail-lbl">Vettura</span><span class="detail-val">${escapeHtml(g.vettura)||'-'}</span></div>
       <div class="detail-row"><span class="detail-lbl">Numero treno</span><span class="detail-val">${escapeHtml(g.numeroTreno)||'-'}</span></div>
       <div class="detail-row"><span class="detail-lbl">Stazione</span><span class="detail-val">${escapeHtml(g.stazione)||'-'}</span></div>
-      <div class="detail-row"><span class="detail-lbl">Argomento</span><span class="detail-val">${escapeHtml(g.argomento)||'-'}</span></div>
       <div class="detail-row"><span class="detail-lbl">Riparato</span><span class="detail-val">${g.riparato==='si'?'✅ Sì':'❌ No'}</span></div>
       ${g.riparato==='no' && g.rientro ? `<div class="detail-row"><span class="detail-lbl">Rientrato dove</span><span class="detail-val">${escapeHtml(g.rientro)}</span></div>` : ''}
       <div style="margin-top:12px">
@@ -1102,7 +1096,6 @@ function openDetail(tipo, id){
       <div class="detail-row"><span class="detail-lbl">Data / Ora</span><span class="detail-val">${dataFmt} ${g.ora||''}</span></div>
       <div class="detail-row"><span class="detail-lbl">Materiale</span><span class="detail-val">${escapeHtml(g.materiale)||'-'}</span></div>
       <div class="detail-row"><span class="detail-lbl">Vettura</span><span class="detail-val">${escapeHtml(g.vettura)||'-'}</span></div>
-      <div class="detail-row"><span class="detail-lbl">Argomento</span><span class="detail-val">${escapeHtml(g.argomento)||'-'}</span></div>
       <div style="margin-top:12px">
         <div class="detail-lbl" style="margin-bottom:6px">Descrizione breve</div>
         <div class="detail-text">${escapeHtml(g.breve)||'-'}</div>
@@ -1133,7 +1126,6 @@ function inviaWhatsApp(){
           + `🚆 Materiale: ${g.materiale||'-'} | Vettura: ${g.vettura||'-'}\n`
           + (g.numeroTreno ? `🔢 N° treno: ${g.numeroTreno}\n` : '')
           + `📍 Stazione: ${g.stazione||'-'}\n`
-          + `🏷️ Argomento: ${g.argomento||'-'}\n`
           + `📝 ${g.breve||'-'}\n`
           + (g.estesa ? `\n${g.estesa}\n` : '')
           + `\n${g.riparato==='si' ? '✅ Riparato' : '❌ Non riparato'}`
@@ -1145,7 +1137,6 @@ function inviaWhatsApp(){
     testo = `📣 *SEGNALAZIONE* — ${g.linea}\n`
           + `📅 ${dataFmt} ${g.ora||''}\n`
           + `🚆 Materiale: ${g.materiale||'-'} | Vettura: ${g.vettura||'-'}\n`
-          + `🏷️ Argomento: ${g.argomento||'-'}\n`
           + `📝 ${g.breve||'-'}\n`
           + (g.estesa ? `\n${g.estesa}` : '');
   } else return;
@@ -1194,7 +1185,6 @@ function caricaGuastoNelForm(id, g){
   document.getElementById('f-vettura').value = g.vettura || '';
   document.getElementById('f-numerotreno').value = g.numeroTreno || '';
   setTimeout(()=>{ document.getElementById('f-stazione').value = g.stazione || ''; }, 0);
-  document.getElementById('f-argomento').value = g.argomento || '';
   document.getElementById('f-breve').value = g.breve || '';
   document.getElementById('f-estesa').value = g.estesa || '';
   const riparatoRadio = document.querySelector(`input[name="riparato"][value="${g.riparato}"]`);
@@ -1220,7 +1210,6 @@ function caricaSegnalazioneNelForm(id, g){
   document.getElementById('s-materiale').value = g.materiale || '';
   if(g.materiale) populateVettura('s-vettura', g.linea, g.materiale);
   document.getElementById('s-vettura').value = g.vettura || '';
-  document.getElementById('s-argomento').value = g.argomento || '';
   document.getElementById('s-breve').value = g.breve || '';
   document.getElementById('s-estesa').value = g.estesa || '';
 
