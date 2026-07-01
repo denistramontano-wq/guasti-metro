@@ -140,6 +140,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-cancel{background:var(--surface2);color:var(--text2)}
 .btn-edit{background:var(--purple-lt);color:var(--purple-dk)}
 .btn-del{background:var(--red-bg);color:var(--red-fg)}
+.btn-wa{background:#D4EDDA;color:#1E6B3A}
 
 .toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 16px);left:50%;transform:translateX(-50%);background:var(--text);color:white;padding:11px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:500;opacity:0;transition:opacity .25s;pointer-events:none}
 .toast.show{opacity:1}
@@ -466,6 +467,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div id="detailContent"></div>
     <div class="sheet-btns">
       <button class="btn-cancel" onclick="closeDetail()">Chiudi</button>
+      <button class="btn-wa" onclick="inviaWhatsApp()">📲 WhatsApp</button>
+    </div>
+    <div class="sheet-btns" style="margin-top:8px">
       <button class="btn-edit" onclick="modificaItem()">✏️ Modifica</button>
       <button class="btn-del" id="btnDeleteGuasto" onclick="eliminaItem()">Elimina</button>
     </div>
@@ -1115,6 +1119,39 @@ function closeDetail(){
   document.getElementById('detailOverlay').classList.remove('open');
   selectedGuastoId = null;
   selectedSegId = null;
+}
+function inviaWhatsApp(){
+  const WA_NUMBER = '393667687406';
+  let testo = '';
+
+  if(selectedGuastoId){
+    const g = allGuasti[selectedGuastoId];
+    if(!g) return;
+    const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '-';
+    testo = `🚧 *GUASTO* — ${g.linea}\n`
+          + `📅 ${dataFmt} ${g.ora||''}\n`
+          + `🚆 Materiale: ${g.materiale||'-'} | Vettura: ${g.vettura||'-'}\n`
+          + (g.numeroTreno ? `🔢 N° treno: ${g.numeroTreno}\n` : '')
+          + `📍 Stazione: ${g.stazione||'-'}\n`
+          + `🏷️ Argomento: ${g.argomento||'-'}\n`
+          + `📝 ${g.breve||'-'}\n`
+          + (g.estesa ? `\n${g.estesa}\n` : '')
+          + `\n${g.riparato==='si' ? '✅ Riparato' : '❌ Non riparato'}`
+          + (g.riparato==='no' && g.rientro ? ` — ${g.rientro}` : '');
+  } else if(selectedSegId){
+    const g = allSegnalazioni[selectedSegId];
+    if(!g) return;
+    const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '-';
+    testo = `📣 *SEGNALAZIONE* — ${g.linea}\n`
+          + `📅 ${dataFmt} ${g.ora||''}\n`
+          + `🚆 Materiale: ${g.materiale||'-'} | Vettura: ${g.vettura||'-'}\n`
+          + `🏷️ Argomento: ${g.argomento||'-'}\n`
+          + `📝 ${g.breve||'-'}\n`
+          + (g.estesa ? `\n${g.estesa}` : '');
+  } else return;
+
+  const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(testo)}`;
+  window.open(url, '_blank');
 }
 function eliminaItem(){
   if(selectedGuastoId){
