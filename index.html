@@ -24,9 +24,11 @@
   --text:#1A1735; --text2:#5E5A86; --text3:#8A86B0;
   --green:#1FA352; --green-bg:#D3F2DD; --green-fg:#147A3C;
   --red:#E03B3B; --red-bg:#FDDCDC; --red-fg:#B42323;
-  --amber:#FFB020;
+  --amber:#FFB020; --amber-bg:#FFF1D6; --amber-fg:#8A5A00;
+  --blue:#1E6FE0; --blue-bg:#DCE9FC;
+  --gray-bg:#ECEBF3; --gray-fg:#4A4766;
   --m1:#E03B3B; --m2:#1FA352; --m3:#F2C200; --m4:#1E6FE0; --m5:#8B4DE0;
-  --nav-h:64px; --top-h:56px;
+  --top-h:56px;
   --safe-t:env(safe-area-inset-top, 0px);
   --safe-b:env(safe-area-inset-bottom, 0px);
 }
@@ -51,11 +53,62 @@ button{font-family:inherit}
 .scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:24px}
 
 /* ── BOTTOM NAV ── */
-.bottom-nav{height:calc(var(--nav-h) + var(--safe-b));padding-bottom:var(--safe-b);background:var(--surface);border-top:1px solid var(--border);display:flex;flex-shrink:0;z-index:50}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--text3);border:none;background:none;padding:8px 0;position:relative}
-.nav-item.active{color:var(--purple)}
-.nav-item.active::before{content:"";position:absolute;top:0;left:50%;width:32px;height:3px;border-radius:0 0 3px 3px;background:var(--purple);transform:translateX(-50%)}
-.nav-label{font-size:12px;font-weight:700;line-height:1}
+.back{display:flex;align-items:center;gap:8px;color:#fff;font-size:18px;font-weight:700;background:none;border:none;cursor:pointer;padding:0;min-width:0}
+.back .btn{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.back:active .btn{background:rgba(255,255,255,.28)}
+
+/* ── HOME ── */
+.hello{margin-bottom:16px}
+.hello h1{font-size:24px;font-weight:700;line-height:1.2}
+.hello p{font-size:14px;color:var(--text2);margin-top:8px}
+.h-status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px}
+.h-st{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 8px;text-align:center;cursor:pointer;color:var(--text)}
+.h-st b{display:block;font-size:24px;font-weight:700;line-height:1.2}
+.h-st span{font-size:12px;color:var(--text2);line-height:1.3;display:block;margin-top:8px}
+.h-st.ko b{color:var(--red-fg)}
+.h-st.warn b{color:var(--amber-fg)}
+.h-hero{width:100%;display:flex;align-items:center;gap:16px;padding:16px;border:none;border-radius:16px;background:var(--purple);color:#fff;text-align:left;margin-bottom:8px;cursor:pointer}
+.h-hero:active{background:var(--purple-dk)}
+.h-hero .bubble{width:48px;height:48px;border-radius:16px;background:rgba(255,255,255,.16);color:#fff}
+.h-hero .t{font-size:18px;font-weight:700}
+.h-hero .s{font-size:13px;color:rgba(255,255,255,.8)}
+.h-hero .go{margin-left:auto}
+.h-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.h-tile{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:8px;text-align:left;cursor:pointer;color:var(--text);min-height:128px}
+.h-tile:active,.h-st:active{background:var(--surface2)}
+.h-tile .t{font-size:16px;font-weight:700}
+.h-tile .s{font-size:13px;color:var(--text2);line-height:1.4}
+.bubble{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.b-amber{background:var(--amber-bg);color:var(--amber-fg)}
+.b-blue{background:var(--blue-bg);color:var(--blue)}
+.b-green{background:var(--green-bg);color:var(--green-fg)}
+.b-purple{background:var(--purple-lt);color:var(--purple)}
+.b-gray{background:var(--gray-bg);color:var(--gray-fg)}
+.b-red{background:var(--red-bg);color:var(--red-fg)}
+
+/* ── IMPOSTAZIONI ── */
+.set-lbl{font-size:14px;font-weight:700;color:var(--text2);margin:0 0 8px 8px}
+.set-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:0 16px;margin-bottom:24px}
+.set-row{display:flex;align-items:center;gap:16px;min-height:64px;padding:8px 0;border-bottom:1px solid var(--border);width:100%;background:none;border-left:none;border-right:none;border-top:none;text-align:left;color:var(--text);cursor:pointer}
+.set-row:last-child{border-bottom:none}
+div.set-row{cursor:default}
+.set-main{flex:1;min-width:0}
+.set-main .t{font-size:15px;font-weight:700}
+.set-main .s{font-size:13px;color:var(--text2);line-height:1.4}
+.set-row > .ic{color:var(--text3)}
+.set-row.danger .t{color:var(--red-fg)}
+.set-sub{padding:0 0 16px;border-bottom:1px solid var(--border)}
+.set-chips{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.set-chips.two{grid-template-columns:1fr 1fr}
+.set-chips button{min-height:40px;border-radius:12px;font-size:14px;font-weight:700;background:var(--surface2);border:1.5px solid var(--border);color:var(--text2);cursor:pointer}
+.set-chips button.on{background:var(--purple);border-color:var(--purple);color:#fff}
+.switch{width:48px;height:32px;border-radius:16px;background:var(--border2);position:relative;flex-shrink:0;border:none;cursor:pointer}
+.switch::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}
+.switch.on{background:var(--green)}
+.switch.on::after{left:20px}
+.conn{width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.conn.ok{background:var(--green)} .conn.ko{background:var(--red)}
+.set-info{text-align:center;font-size:13px;color:var(--text3);line-height:1.6}
 
 /* ── PAGINE ── */
 .page{display:none;padding:16px}
@@ -197,7 +250,7 @@ button{font-family:inherit}
 .rank-row > .ic{color:var(--text3)}
 .chart svg{display:block;width:100%;height:auto}
 
-.toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 16px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:8px 24px;line-height:24px;border-radius:24px;font-size:14px;font-weight:700;z-index:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast{position:fixed;bottom:calc(var(--safe-b) + 24px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:8px 24px;line-height:24px;border-radius:24px;font-size:14px;font-weight:700;z-index:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
 </style>
 </head>
@@ -225,20 +278,154 @@ button{font-family:inherit}
   <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
   <symbol id="i-repeat" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></symbol>
   <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
 </svg>
 
 <!-- ══════════ APP ══════════ -->
 <div id="appRoot" style="height:100%;display:flex;flex-direction:column">
 
   <header class="topbar">
-    <div class="topbar-logo"><svg class="ic ic-lg"><use href="#i-alert"/></svg>Guasti<span>Metro</span></div>
-    <div class="firma">v3.0.0 · Creato da<br>Denis Tramontano</div>
+    <div class="topbar-logo" id="topLogo"><svg class="ic ic-lg"><use href="#i-alert"/></svg>Guasti<span>Metro</span></div>
+    <button class="back" id="topBack" style="display:none" onclick="tornaHome()" aria-label="Torna alla Home"><span class="btn"><svg class="ic"><use href="#i-back"/></svg></span><span id="topTitle"></span></button>
+    <div class="firma">v4.0.0 · Creato da<br>Denis Tramontano</div>
   </header>
 
   <main class="scroll-area">
 
+    <!-- ── PAGINA: HOME ── -->
+    <section class="page active" id="page-home">
+      <div class="hello">
+        <h1 id="homeSaluto">Buongiorno</h1>
+        <p id="homeData">—</p>
+      </div>
+
+      <div class="h-status">
+        <button class="h-st" onclick="homeVaiOggi()"><b id="homeOggi">–</b><span>guasti oggi</span></button>
+        <button class="h-st ko" onclick="homeVaiNonRiparati()"><b id="homeNonRip">–</b><span>non riparati</span></button>
+        <button class="h-st warn" onclick="homeVaiRecidivi()"><b id="homeRecid">–</b><span>treni recidivi</span></button>
+      </div>
+
+      <button class="h-hero" onclick="apri('guasto')">
+        <span class="bubble"><svg class="ic ic-lg"><use href="#i-plus"/></svg></span>
+        <span><span class="t" style="display:block">Nuovo guasto</span><span class="s">Registra un guasto in linea</span></span>
+        <svg class="ic go"><use href="#i-chevron"/></svg>
+      </button>
+
+      <div class="h-grid">
+        <button class="h-tile" onclick="apri('segnalazione')">
+          <span class="bubble b-amber"><svg class="ic"><use href="#i-megaphone"/></svg></span>
+          <span class="t">Segnalazione</span>
+          <span class="s">Problema da inviare ai depositi</span>
+        </button>
+        <button class="h-tile" onclick="apri('elenco')">
+          <span class="bubble b-blue"><svg class="ic"><use href="#i-list"/></svg></span>
+          <span class="t">Elenchi</span>
+          <span class="s" id="homeElenchiSub">Guasti e segnalazioni</span>
+        </button>
+        <button class="h-tile" onclick="apri('stat')">
+          <span class="bubble b-green"><svg class="ic"><use href="#i-chart"/></svg></span>
+          <span class="t">Statistiche</span>
+          <span class="s">Guasti, treni e recidivi</span>
+        </button>
+        <button class="h-tile" onclick="apri('impostazioni')">
+          <span class="bubble b-gray"><svg class="ic"><use href="#i-settings"/></svg></span>
+          <span class="t">Impostazioni</span>
+          <span class="s">Materiali, descrizioni, app</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ── PAGINA: IMPOSTAZIONI ── -->
+    <section class="page" id="page-impostazioni">
+      <div class="set-lbl">Dati condivisi</div>
+      <div class="set-box">
+        <button class="set-row" onclick="apriGestioneMateriali()">
+          <span class="bubble b-purple"><svg class="ic"><use href="#i-train"/></svg></span>
+          <span class="set-main"><span class="t" style="display:block">Materiali</span><span class="s">Treni e vetture per linea</span></span>
+          <svg class="ic"><use href="#i-chevron"/></svg>
+        </button>
+        <button class="set-row" onclick="apriGestioneDescrizioni()">
+          <span class="bubble b-amber"><svg class="ic"><use href="#i-file"/></svg></span>
+          <span class="set-main"><span class="t" style="display:block">Descrizioni predefinite</span><span class="s" id="setDescrSub">—</span></span>
+          <svg class="ic"><use href="#i-chevron"/></svg>
+        </button>
+        <button class="set-row" onclick="apriWhatsApp()">
+          <span class="bubble b-green"><svg class="ic"><use href="#i-message"/></svg></span>
+          <span class="set-main"><span class="t" style="display:block">Destinatario WhatsApp</span><span class="s" id="setWaSub">—</span></span>
+          <svg class="ic"><use href="#i-chevron"/></svg>
+        </button>
+      </div>
+
+      <div class="set-lbl">Su questo telefono</div>
+      <div class="set-box">
+        <div class="set-row" style="border-bottom:none">
+          <span class="bubble b-blue"><svg class="ic"><use href="#i-pin"/></svg></span>
+          <span class="set-main"><span class="t" style="display:block">Linea predefinita</span><span class="s">Già selezionata nei moduli</span></span>
+        </div>
+        <div class="set-sub">
+          <div class="set-chips" id="setLinea">
+            <button data-v="" onclick="setPref('lineaDef','')">No</button>
+            <button data-v="M1" onclick="setPref('lineaDef','M1')">M1</button>
+            <button data-v="M2" onclick="setPref('lineaDef','M2')">M2</button>
+            <button data-v="M3" onclick="setPref('lineaDef','M3')">M3</button>
+            <button data-v="M4" onclick="setPref('lineaDef','M4')">M4</button>
+            <button data-v="M5" onclick="setPref('lineaDef','M5')">M5</button>
+          </div>
+        </div>
+        <div class="set-row">
+          <span class="bubble b-gray"><svg class="ic"><use href="#i-clock"/></svg></span>
+          <span class="set-main"><span class="t" style="display:block">Data e ora automatiche</span><span class="s">Compila con il momento attuale</span></span>
+          <button class="switch" id="setDataAuto" role="switch" aria-label="Data e ora automatiche" onclick="setPref('dataAuto', !prefs.dataAuto)"></button>
+        </div>
+        <div class="set-row" style="border-bottom:none">
+          <span class="bubble b-gray"><svg class="ic"><use href="#i-save"/></svg></span>
+          <span class="set-main"><span class="t" style="display:block">Dopo il salvataggio</span><span class="s">Cosa fare dopo "Registra"</span></span>
+        </div>
+        <div class="set-sub" style="border-bottom:none">
+          <div class="set-chips two" id="setDopo">
+            <button data-v="home" onclick="setPref('dopoSalva','home')">Torna alla Home</button>
+            <button data-v="modulo" onclick="setPref('dopoSalva','modulo')">Resta nel modulo</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="set-lbl">Dati</div>
+      <div class="set-box">
+        <button class="set-row" onclick="esportaTutto()">
+          <span class="bubble b-blue"><svg class="ic"><use href="#i-download"/></svg></span>
+          <span class="set-main"><span class="t" style="display:block">Esporta tutto (CSV)</span><span class="s">Guasti e segnalazioni in un unico file</span></span>
+          <svg class="ic"><use href="#i-chevron"/></svg>
+        </button>
+        <div class="set-row">
+          <span class="bubble b-green"><svg class="ic"><use href="#i-wifi"/></svg></span>
+          <span class="set-main"><span class="t" style="display:block">Collegamento al database</span><span class="s" id="setConnSub">Verifica in corso...</span></span>
+          <span class="conn" id="setConnDot"></span>
+        </div>
+      </div>
+
+      <div class="set-lbl">App</div>
+      <div class="set-box">
+        <button class="set-row" onclick="cercaAggiornamenti()">
+          <span class="bubble b-purple"><svg class="ic"><use href="#i-refresh"/></svg></span>
+          <span class="set-main"><span class="t" style="display:block">Cerca aggiornamenti</span><span class="s">Versione installata 4.0.0</span></span>
+          <svg class="ic"><use href="#i-chevron"/></svg>
+        </button>
+        <button class="set-row danger" onclick="svuotaDatiLocali()">
+          <span class="bubble b-red"><svg class="ic"><use href="#i-trash"/></svg></span>
+          <span class="set-main"><span class="t" style="display:block">Svuota dati locali</span><span class="s">Reimposta le preferenze di questo telefono</span></span>
+          <svg class="ic"><use href="#i-chevron"/></svg>
+        </button>
+      </div>
+
+      <div class="set-info">Guasti Metro v4.0.0<br>Creato da Denis Tramontano</div>
+    </section>
+
     <!-- ── PAGINA: NUOVO GUASTO ── -->
-    <section class="page active" id="page-guasto">
+    <section class="page" id="page-guasto">
       <div class="sec-header">
         <h1 class="sec-title">Nuovo guasto</h1>
         <div class="sec-sub">Compila i campi per registrare la segnalazione</div>
@@ -324,10 +511,7 @@ button{font-family:inherit}
         <div class="error-msg" id="formError"></div>
       </div>
 
-      <div class="links-row">
-        <button class="link-btn" onclick="apriGestioneMateriali()"><svg class="ic"><use href="#i-train"/></svg>Gestisci materiali</button>
-        <button class="link-btn" onclick="apriGestioneDescrizioni()"><svg class="ic"><use href="#i-file"/></svg>Gestisci descrizioni</button>
-      </div>
+
     </section>
 
     <!-- ── PAGINA: NUOVA SEGNALAZIONE ── -->
@@ -394,10 +578,7 @@ button{font-family:inherit}
         <div class="error-msg" id="formErrorSeg"></div>
       </div>
 
-      <div class="links-row">
-        <button class="link-btn" onclick="apriGestioneMateriali()"><svg class="ic"><use href="#i-train"/></svg>Gestisci materiali</button>
-        <button class="link-btn" onclick="apriGestioneDescrizioni()"><svg class="ic"><use href="#i-file"/></svg>Gestisci descrizioni</button>
-      </div>
+
     </section>
 
     <!-- ── PAGINA: ELENCHI ── -->
@@ -564,20 +745,6 @@ button{font-family:inherit}
 
   </main>
 
-  <nav class="bottom-nav">
-    <button class="nav-item active" id="nav-guasto" onclick="switchPage('guasto',this)">
-      <svg class="ic ic-lg"><use href="#i-alert"/></svg><span class="nav-label">Guasto</span>
-    </button>
-    <button class="nav-item" id="nav-segnalazione" onclick="switchPage('segnalazione',this)">
-      <svg class="ic ic-lg"><use href="#i-megaphone"/></svg><span class="nav-label">Segnalazione</span>
-    </button>
-    <button class="nav-item" id="nav-elenco" onclick="switchPage('elenco',this)">
-      <svg class="ic ic-lg"><use href="#i-list"/></svg><span class="nav-label">Elenchi</span>
-    </button>
-    <button class="nav-item" id="nav-stat" onclick="switchPage('stat',this)">
-      <svg class="ic ic-lg"><use href="#i-chart"/></svg><span class="nav-label">Statistiche</span>
-    </button>
-  </nav>
 </div>
 
 <!-- ── SHEET DETTAGLIO ── -->
@@ -679,6 +846,24 @@ button{font-family:inherit}
 
     <div class="sheet-btns">
       <button class="btn-cancel" onclick="chiudiGestioneDescrizioni()"><svg class="ic"><use href="#i-x"/></svg>Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SHEET NUMERO WHATSAPP ── -->
+<div class="overlay" id="waOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2>Destinatario WhatsApp</h2>
+    <div class="sec-sub" style="margin-bottom:16px">Numero a cui inviare guasti e segnalazioni. Vale per tutti gli utenti dell'app.</div>
+    <div class="field">
+      <label for="waInput">Numero con prefisso</label>
+      <input type="tel" id="waInput" placeholder="+39 ..." inputmode="tel">
+    </div>
+    <button class="btn-primary" onclick="salvaWhatsApp()">Salva numero</button>
+    <div class="error-msg" id="waError"></div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" onclick="document.getElementById('waOverlay').classList.remove('open')"><svg class="ic"><use href="#i-x"/></svg>Chiudi</button>
     </div>
   </div>
 </div>
@@ -787,6 +972,8 @@ function initForm(){
     const linea = document.querySelector('input[name="lineaSeg"]:checked')?.value;
     populateVettura('s-vettura', linea, e.target.value);
   });
+  compilaModulo('f');
+  compilaModulo('s');
 }
 function populateStazioni(linea){
   const sel = document.getElementById('f-stazione');
@@ -856,6 +1043,7 @@ function salvaGuasto(){
     banner.classList.add('show');
     setTimeout(()=>banner.classList.remove('show'), 3000);
     showToast(isEdit ? 'Guasto aggiornato' : 'Guasto registrato');
+    dopoSalvataggio();
   }).catch(e=>{
     document.getElementById('btnSalva').disabled = false;
     err.textContent = 'Errore salvataggio: '+e.message;
@@ -878,6 +1066,7 @@ function resetForm(){
   editGuastoId = null;
   document.getElementById('btnSalva').textContent = 'Registra guasto';
   document.querySelector('#page-guasto .sec-title').textContent = 'Nuovo guasto';
+  compilaModulo('f');
 }
 
 function salvaSegnalazione(){
@@ -910,6 +1099,7 @@ function salvaSegnalazione(){
     banner.classList.add('show');
     setTimeout(()=>banner.classList.remove('show'), 3000);
     showToast(isEdit ? 'Segnalazione aggiornata' : 'Segnalazione registrata');
+    dopoSalvataggio();
   }).catch(e=>{
     document.getElementById('btnSalvaSeg').disabled = false;
     err.textContent = 'Errore salvataggio: '+e.message;
@@ -927,6 +1117,7 @@ function resetFormSeg(){
   editSegId = null;
   document.getElementById('btnSalvaSeg').textContent = 'Registra segnalazione';
   document.querySelector('#page-segnalazione .sec-title').textContent = 'Nuova segnalazione';
+  compilaModulo('s');
 }
 
 /* ════════ ELENCO ════════ */
@@ -935,7 +1126,8 @@ function listenGuasti(){
     allGuasti = snap.val() || {};
     aggiornaAnniDisponibili();
     renderElenco();
-    if(document.getElementById('page-stat').classList.contains('active')) renderStat();
+    if(paginaCorrente==='stat') renderStat();
+    if(paginaCorrente==='home') renderHome();
   });
 }
 function listenSegnalazioni(){
@@ -943,6 +1135,7 @@ function listenSegnalazioni(){
     allSegnalazioni = snap.val() || {};
     aggiornaAnniDisponibiliSeg();
     renderElencoSeg();
+    if(paginaCorrente==='home') renderHome();
   });
 }
 function listenMaterialiExtra(){
@@ -968,6 +1161,7 @@ function listenDescrizioniPreset(){
     DESCRIZIONI_PRESET = snap.val() || {};
     popolaSelectDescrizioniPreset();
     renderDescrizioniList();
+    if(paginaCorrente==='impostazioni') renderImpostazioni();
   });
 }
 function aggiornaAnniDisponibili(){
@@ -1251,7 +1445,7 @@ function closeDetail(){
   selectedSegId = null;
 }
 function inviaWhatsApp(){
-  const WA_NUMBER = '393667687406';
+  const WA_NUMBER = waNumero();
   let testo = '';
 
   if(selectedGuastoId){
@@ -1332,11 +1526,7 @@ function caricaGuastoNelForm(id, g){
   document.getElementById('btnSalva').textContent = 'Salva modifiche';
   document.querySelector('#page-guasto .sec-title').textContent = 'Modifica guasto';
 
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-guasto').classList.add('active');
-  document.getElementById('nav-guasto').classList.add('active');
-  document.querySelector('.scroll-area').scrollTop = 0;
+  mostraPagina('guasto');
 }
 function caricaSegnalazioneNelForm(id, g){
   editSegId = id;
@@ -1353,11 +1543,7 @@ function caricaSegnalazioneNelForm(id, g){
   document.getElementById('btnSalvaSeg').textContent = 'Salva modifiche';
   document.querySelector('#page-segnalazione .sec-title').textContent = 'Modifica segnalazione';
 
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-segnalazione').classList.add('active');
-  document.getElementById('nav-segnalazione').classList.add('active');
-  document.querySelector('.scroll-area').scrollTop = 0;
+  mostraPagina('segnalazione');
 }
 
 /* ════════ GESTIONE MATERIALI ════════ */
@@ -1627,15 +1813,214 @@ function renderDescrizioniList(){
 }
 
 /* ════════ NAVIGAZIONE ════════ */
-function switchPage(name, btn){
-  if(name==='guasto' && editGuastoId){ resetForm(); }
-  if(name==='segnalazione' && editSegId){ resetFormSeg(); }
+/* Si parte sempre dalla Home; le altre pagine hanno la freccia per tornare.
+   Il tasto "indietro" del telefono riporta alla Home invece di chiudere l'app. */
+const TITOLI = {guasto:'Guasto', segnalazione:'Segnalazione', elenco:'Elenchi', stat:'Statistiche', impostazioni:'Impostazioni'};
+let paginaCorrente = 'home';
+
+function mostraPagina(name, opts){
+  opts = opts || {};
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
-  btn.classList.add('active');
+  const home = name==='home';
+  document.getElementById('topLogo').style.display = home ? 'flex' : 'none';
+  document.getElementById('topBack').style.display = home ? 'none' : 'flex';
+  document.getElementById('topTitle').textContent = TITOLI[name] || '';
+  if(name==='home') renderHome();
   if(name==='stat') renderStat();
+  if(name==='impostazioni') renderImpostazioni();
+  if(!home && !opts.noHistory){
+    if(paginaCorrente==='home') history.pushState({p:name}, '');
+    else history.replaceState({p:name}, '');
+  }
+  paginaCorrente = name;
   document.querySelector('.scroll-area').scrollTop = 0;
+}
+function apri(name){
+  if(name==='guasto' && editGuastoId) resetForm();
+  if(name==='segnalazione' && editSegId) resetFormSeg();
+  mostraPagina(name);
+}
+function switchPage(name){ apri(name); }
+function tornaHome(){
+  if(history.state && history.state.p) history.back();
+  else mostraPagina('home');
+}
+window.addEventListener('popstate', ()=>{
+  document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'));
+  if(editGuastoId) resetForm();
+  if(editSegId) resetFormSeg();
+  mostraPagina('home', {noHistory:true});
+});
+
+/* ════════ HOME ════════ */
+function renderHome(){
+  const ora = new Date().getHours();
+  document.getElementById('homeSaluto').textContent = ora<13 ? 'Buongiorno' : (ora<18 ? 'Buon pomeriggio' : 'Buonasera');
+  const d = new Date().toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
+  document.getElementById('homeData').textContent = d.charAt(0).toUpperCase() + d.slice(1) + ' · cosa devi fare?';
+  const oggi = oggiISO();
+  const guasti = Object.values(allGuasti);
+  document.getElementById('homeOggi').textContent = guasti.filter(g=>g.data===oggi).length;
+  document.getElementById('homeNonRip').textContent = guasti.filter(g=>g.riparato!=='si').length;
+  const anno = String(new Date().getFullYear());
+  const annoEntries = Object.entries(allGuasti).filter(([id,g])=> (g.data||'').slice(0,4)===anno);
+  document.getElementById('homeRecid').textContent = calcolaStat(annoEntries).treniRecidivi.length;
+  const ng = guasti.length, ns = Object.keys(allSegnalazioni).length;
+  document.getElementById('homeElenchiSub').textContent = `${ng} ${ng===1?'guasto':'guasti'} · ${ns} ${ns===1?'segnalazione':'segnalazioni'}`;
+}
+function attivaChip(sel){
+  const el = document.querySelector(sel); if(!el) return;
+  el.parentElement.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+function filtriElencoPuliti(){
+  lineFilter = 'ALL'; statusFilter = 'ALL';
+  attivaChip('#lineFilters .f-chip[data-f="ALL"]');
+  attivaChip('#tab-guasti .f-chip[data-s="ALL"]');
+  document.getElementById('searchInput').value = '';
+  document.getElementById('monthFilter').value = 'ALL';
+  document.getElementById('yearFilter').value = 'ALL';
+  document.getElementById('dayFilter').value = '';
+  setElencoTab('guasti', document.querySelector('.tabs .f-chip[data-tab="guasti"]'));
+}
+function homeVaiOggi(){
+  filtriElencoPuliti();
+  document.getElementById('dayFilter').value = oggiISO();
+  renderElenco();
+  mostraPagina('elenco');
+}
+function homeVaiNonRiparati(){
+  filtriElencoPuliti();
+  statusFilter = 'no';
+  attivaChip('#tab-guasti .f-chip[data-s="no"]');
+  renderElenco();
+  mostraPagina('elenco');
+}
+function homeVaiRecidivi(){
+  statModo = 'treni'; statPeriodo = 'anno'; statLinea = 'ALL'; statTuttiTreni = false;
+  attivaChip('#statModo .f-chip[data-v="treni"]');
+  attivaChip(`#statPeriodo .f-chip[onclick*="'anno'"]`);
+  attivaChip('#statLinee .f-chip[data-f="ALL"]');
+  mostraPagina('stat');
+}
+
+/* ════════ IMPOSTAZIONI ════════ */
+const PREFS_KEY = 'guastiMetro.prefs';
+const PREFS_DEFAULT = {lineaDef:'', dataAuto:true, dopoSalva:'home'};
+let prefs = caricaPrefs();
+let waNumeroCondiviso = '';
+const WA_DEFAULT = '393667687406';
+
+function caricaPrefs(){
+  try { return Object.assign({}, PREFS_DEFAULT, JSON.parse(localStorage.getItem(PREFS_KEY) || '{}')); }
+  catch(e){ return Object.assign({}, PREFS_DEFAULT); }
+}
+function setPref(k, v){
+  prefs[k] = v;
+  try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch(e){}
+  renderImpostazioni();
+  if(k==='lineaDef' || k==='dataAuto'){
+    if(!editGuastoId) compilaModulo('f');
+    if(!editSegId) compilaModulo('s');
+  }
+}
+/* Data/ora e linea predefinita nei moduli nuovi */
+function compilaModulo(p){
+  const now = new Date();
+  document.getElementById(p+'-data').value = prefs.dataAuto ? oggiISO(now) : '';
+  document.getElementById(p+'-ora').value = prefs.dataAuto ? now.toTimeString().slice(0,5) : '';
+  const nome = p==='f' ? 'linea' : 'lineaSeg';
+  const giaScelta = document.querySelector(`input[name="${nome}"]:checked`);
+  if(prefs.lineaDef && !giaScelta){
+    const r = document.querySelector(`input[name="${nome}"][value="${prefs.lineaDef}"]`);
+    if(r){
+      r.checked = true;
+      if(p==='f'){ populateStazioni(prefs.lineaDef); populateMateriali('f-materiale','f-vettura', prefs.lineaDef); }
+      else populateMateriali('s-materiale','s-vettura', prefs.lineaDef);
+    }
+  }
+}
+function dopoSalvataggio(){
+  if(prefs.dopoSalva==='home') tornaHome();
+}
+function waNumero(){ return (waNumeroCondiviso || WA_DEFAULT).replace(/\D/g,''); }
+function fmtTelefono(n){ return '+' + n.replace(/^(\d{2})(\d{3})(\d{3})(\d+)$/, '$1 $2 $3 $4'); }
+
+function renderImpostazioni(){
+  const nd = Object.keys(DESCRIZIONI_PRESET).length;
+  document.getElementById('setDescrSub').textContent = nd===1 ? '1 descrizione' : nd+' descrizioni';
+  document.getElementById('setWaSub').textContent = fmtTelefono(waNumero());
+  document.querySelectorAll('#setLinea button').forEach(b=>b.classList.toggle('on', b.dataset.v===prefs.lineaDef));
+  document.querySelectorAll('#setDopo button').forEach(b=>b.classList.toggle('on', b.dataset.v===prefs.dopoSalva));
+  const sw = document.getElementById('setDataAuto');
+  sw.classList.toggle('on', !!prefs.dataAuto);
+  sw.setAttribute('aria-checked', prefs.dataAuto ? 'true' : 'false');
+}
+function listenImpostazioni(){
+  db.ref('impostazioni/whatsapp').on('value', snap=>{
+    waNumeroCondiviso = String(snap.val() || '');
+    if(paginaCorrente==='impostazioni') renderImpostazioni();
+  });
+  db.ref('.info/connected').on('value', snap=>{
+    const ok = snap.val()===true;
+    document.getElementById('setConnDot').className = 'conn ' + (ok ? 'ok' : 'ko');
+    document.getElementById('setConnSub').textContent = ok ? 'Collegato · dati aggiornati' : 'Non collegato · i dati si inviano al ritorno della rete';
+  });
+}
+function apriWhatsApp(){
+  document.getElementById('waInput').value = '+' + waNumero();
+  document.getElementById('waError').textContent = '';
+  document.getElementById('waOverlay').classList.add('open');
+}
+function salvaWhatsApp(){
+  const n = document.getElementById('waInput').value.replace(/\D/g,'');
+  const err = document.getElementById('waError');
+  if(n.length < 10){ err.textContent = 'Inserisci il numero completo di prefisso (es. +39...)'; return; }
+  db.ref('impostazioni/whatsapp').set(n).then(()=>{
+    document.getElementById('waOverlay').classList.remove('open');
+    showToast('Numero WhatsApp salvato');
+  }).catch(e=>{ err.textContent = 'Errore salvataggio: '+e.message; });
+}
+function esportaTutto(){
+  const righe = [];
+  Object.values(allGuasti).forEach(g=> righe.push(['Guasto', g]));
+  Object.values(allSegnalazioni).forEach(g=> righe.push(['Segnalazione', g]));
+  if(righe.length===0){ showToast('Nessun dato da esportare'); return; }
+  righe.sort((a,b)=> chiaveCron(b[1]).localeCompare(chiaveCron(a[1])));
+  const headers = ['Tipo','Linea','Data','Ora','Materiale','Vettura','Numero treno','Stazione','Descrizione breve','Descrizione estesa','Riparato','Rientrato dove'];
+  const rows = righe.map(([tipo,g])=>[
+    tipo, g.linea||'', fmtData(g.data).replace(/^-$/,''), g.ora||'', g.materiale||'', g.vettura||'', g.numeroTreno||'', g.stazione||'',
+    g.breve||'', g.estesa||'',
+    tipo==='Guasto' ? (g.riparato==='si' ? 'Sì' : 'No') : '',
+    tipo==='Guasto' && g.riparato==='no' ? (g.rientro||'') : ''
+  ].map(csvEscape).join(';'));
+  const csv = '﻿' + headers.join(';') + '\n' + rows.join('\n');
+  const url = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
+  const a = document.createElement('a');
+  a.href = url; a.download = `guasti_metro_completo_${oggiISO()}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('File scaricato');
+}
+function cercaAggiornamenti(){
+  if(!('serviceWorker' in navigator)){ location.reload(); return; }
+  navigator.serviceWorker.getRegistration().then(reg=>{
+    if(!reg){ showToast('Ricarico l\'app...'); setTimeout(()=>location.reload(), 800); return; }
+    return reg.update().then(()=>{
+      if(reg.installing || reg.waiting){
+        showToast('Aggiornamento trovato, riavvio...');
+        setTimeout(()=>location.reload(), 1500);
+      } else showToast('L\'app è già aggiornata');
+    });
+  }).catch(()=> showToast('Impossibile verificare ora, riprova con la rete'));
+}
+function svuotaDatiLocali(){
+  if(!confirm('Reimpostare le preferenze di questo telefono? Guasti e segnalazioni non vengono toccati.')) return;
+  try { localStorage.removeItem(PREFS_KEY); } catch(e){}
+  prefs = caricaPrefs();
+  renderImpostazioni();
+  showToast('Preferenze reimpostate');
 }
 
 /* ════════ STATISTICHE ════════ */
@@ -1892,6 +2277,9 @@ listenGuasti();
 listenSegnalazioni();
 listenMaterialiExtra();
 listenDescrizioniPreset();
+listenImpostazioni();
+history.replaceState(null, '');
+mostraPagina('home', {noHistory:true});
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 
 /* ════════ OFFLINE (service worker) ════════ */

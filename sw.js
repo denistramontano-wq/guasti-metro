@@ -1,5 +1,5 @@
 // Service worker Guasti Metro — cambia CACHE ad ogni nuova versione dell'app
-const CACHE = 'guasti-metro-v3.0.0';
+const CACHE = 'guasti-metro-v4.0.0';
 const SHELL = [
   './',
   './index.html',
