@@ -2,173 +2,253 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#3C3489">
+<meta name="apple-mobile-web-app-title" content="Guasti">
+<meta name="theme-color" content="#3B2FB0">
 <meta name="description" content="Registrazione guasti metro">
 <link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icon.svg">
+<link rel="icon" type="image/svg+xml" href="./icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <title>Guasti Metro</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
 :root{
-  --bg:#F4F3FB; --surface:#fff; --surface2:#F8F7FF;
-  --border:#E2DFFA; --border2:#CBC6F0;
-  --purple:#534AB7; --purple-dk:#3C3489; --purple-lt:#EEEDFE;
-  --text:#1A1735; --text2:#6B6891; --text3:#A09DC0;
-  --green-bg:#D4EDDA; --green-fg:#1E6B3A;
-  --blue-bg:#D0E4F7;  --blue-fg:#0C447C;
-  --violet-bg:#E8D5F7;--violet-fg:#5A1E8C;
-  --gray-bg:#F1EFE8;  --gray-fg:#5F5E5A;
-  --amber-bg:#FFF3CD; --amber-fg:#856404;
-  --red-bg:#FBDADA; --red-fg:#A12626;
-  --red:#D84040;
+  --bg:#F3F2FC; --surface:#fff; --surface2:#F7F6FF;
+  --border:#E1DEFA; --border2:#C9C3F2;
+  --purple:#5145CD; --purple-dk:#3B2FB0; --purple-lt:#ECEAFE;
+  --text:#1A1735; --text2:#5E5A86; --text3:#8A86B0;
+  --green:#1FA352; --green-bg:#D3F2DD; --green-fg:#147A3C;
+  --red:#E03B3B; --red-bg:#FDDCDC; --red-fg:#B42323;
+  --amber:#FFB020;
+  --m1:#E03B3B; --m2:#1FA352; --m3:#F2C200; --m4:#1E6FE0; --m5:#8B4DE0;
   --nav-h:64px; --top-h:56px;
+  --safe-t:env(safe-area-inset-top, 0px);
   --safe-b:env(safe-area-inset-bottom, 0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:400;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+button{font-family:inherit}
+
+/* ── ICONE (Lucide, a linea) ── */
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.ic-sm{width:16px;height:16px}
+.ic-lg{width:24px;height:24px}
 
 /* ── TOPBAR ── */
-.topbar{height:var(--top-h);background:var(--purple-dk);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;position:relative;z-index:50}
-.topbar-logo{font-size:18px;font-weight:800;color:white;letter-spacing:-.5px}
-.topbar-logo span{color:#AFA9EC}
-.topbar-actions{display:flex;align-items:center;gap:6px}
-.icon-btn{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(255,255,255,.12);color:white;transition:background .15s}
-.icon-btn:active{background:rgba(255,255,255,.25)}
+.topbar{min-height:calc(var(--top-h) + var(--safe-t));padding:var(--safe-t) 16px 0;background:var(--purple-dk);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-shrink:0;position:relative;z-index:50}
+.topbar-logo{font-size:20px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.topbar-logo .ic{color:var(--amber)}
+.topbar-logo span{color:#C9C3F2}
+.firma{font-size:11px;line-height:1.4;color:rgba(255,255,255,.8);text-align:right}
 
-/* ── SCROLL CONTAINER ── */
-.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nav-h) + var(--safe-b) + 16px)}
+/* ── SCROLL ── */
+.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:24px}
 
 /* ── BOTTOM NAV ── */
 .bottom-nav{height:calc(var(--nav-h) + var(--safe-b));padding-bottom:var(--safe-b);background:var(--surface);border-top:1px solid var(--border);display:flex;flex-shrink:0;z-index:50}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--text3);transition:color .15s;border:none;background:none;padding:6px 0}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--text3);border:none;background:none;padding:8px 0;position:relative}
 .nav-item.active{color:var(--purple)}
-.nav-icon{font-size:22px;line-height:1}
-.nav-label{font-size:10px;font-weight:600;letter-spacing:.02em}
-.nav-item.active .nav-label{color:var(--purple)}
+.nav-item.active::before{content:"";position:absolute;top:0;left:50%;width:32px;height:3px;border-radius:0 0 3px 3px;background:var(--purple);transform:translateX(-50%)}
+.nav-label{font-size:12px;font-weight:700;line-height:1}
 
-/* ── PAGES ── */
+/* ── PAGINE ── */
 .page{display:none;padding:16px}
 .page.active{display:block}
 .sec-header{margin-bottom:16px}
-.sec-title{font-size:20px;font-weight:800;color:var(--text)}
-.sec-sub{font-size:13px;color:var(--text2);margin-top:2px}
+.sec-title{font-size:24px;font-weight:700;line-height:1.2}
+.sec-sub{font-size:14px;color:var(--text2);line-height:1.5}
 
 /* ── FORM ── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:14px}
-.field{margin-bottom:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px}
+.field{margin-bottom:16px}
 .field:last-child{margin-bottom:0}
-.field label{display:block;font-size:12px;font-weight:700;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
-.field .hint{font-size:11px;color:var(--text3);margin-top:4px;font-weight:500;text-transform:none;letter-spacing:0}
-.field input,.field select,.field textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;background:var(--surface2);color:var(--text);outline:none;-webkit-appearance:none;appearance:none;font-family:inherit}
-.field textarea{resize:vertical;min-height:90px;line-height:1.4}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--purple)}
-.field select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B6891' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center;background-size:18px;padding-right:38px}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field > label,.lbl{display:flex;align-items:baseline;gap:8px;font-size:14px;font-weight:700;color:var(--text2);margin-bottom:8px}
+.hint{font-size:12px;font-weight:400;color:var(--text3)}
+.field input,.field select,.field textarea{width:100%;min-height:48px;padding:8px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:16px;background:var(--surface2);color:var(--text);outline:none;-webkit-appearance:none;appearance:none;font-family:inherit}
+.field textarea{resize:vertical;min-height:96px;padding:16px;line-height:1.5}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--purple);background:#fff}
+.field select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235E5A86' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 16px center;background-size:16px;padding-right:40px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.req{color:var(--red)}
 
 .line-select{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.line-opt{position:relative}
+.line-opt{position:relative;margin:0}
 .line-opt input{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;margin:0;top:0;left:0}
-.line-opt-box{border:1.5px solid var(--border);border-radius:12px;padding:10px 4px;text-align:center;font-size:13px;font-weight:700;color:var(--text2);background:var(--surface2);transition:all .15s}
-.line-opt input:checked + .line-opt-box{border-color:transparent;color:white}
-.line-opt[data-line="M1"] input:checked + .line-opt-box{background:#D84040}
-.line-opt[data-line="M2"] input:checked + .line-opt-box{background:#2E9E4F}
-.line-opt[data-line="M3"] input:checked + .line-opt-box{background:#D9B400}
-.line-opt[data-line="M4"] input:checked + .line-opt-box{background:#1E6FD9}
-.line-opt[data-line="M5"] input:checked + .line-opt-box{background:#8C4DD9}
+.line-opt-box{min-height:48px;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--border);border-radius:12px;font-size:16px;font-weight:700;color:var(--text2);background:var(--surface2)}
+.line-opt input:checked + .line-opt-box{border-color:transparent;color:#fff}
+.line-opt[data-line="M1"] input:checked + .line-opt-box{background:var(--m1)}
+.line-opt[data-line="M2"] input:checked + .line-opt-box{background:var(--m2)}
+.line-opt[data-line="M3"] input:checked + .line-opt-box{background:var(--m3);color:var(--text)}
+.line-opt[data-line="M4"] input:checked + .line-opt-box{background:var(--m4)}
+.line-opt[data-line="M5"] input:checked + .line-opt-box{background:var(--m5)}
+.line-opt input:focus-visible + .line-opt-box,.toggle-opt input:focus-visible + .toggle-opt-box{outline:2px solid var(--purple);outline-offset:2px}
 
 .toggle-group{display:flex;gap:8px}
-.toggle-opt{flex:1;position:relative}
+.toggle-opt{flex:1;position:relative;margin:0}
 .toggle-opt input{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;margin:0;top:0;left:0}
-.toggle-opt-box{border:1.5px solid var(--border);border-radius:12px;padding:12px;text-align:center;font-size:14px;font-weight:700;color:var(--text2);background:var(--surface2);transition:all .15s}
-.toggle-opt input:checked + .toggle-opt-box{background:var(--purple);border-color:var(--purple);color:white}
+.toggle-opt-box{min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid var(--border);border-radius:12px;font-size:16px;font-weight:700;color:var(--text2);background:var(--surface2)}
+.toggle-opt input[value="si"]:checked + .toggle-opt-box{background:var(--green);border-color:var(--green);color:#fff}
+.toggle-opt input[value="no"]:checked + .toggle-opt-box{background:var(--red);border-color:var(--red);color:#fff}
 
-.btn-primary{width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none;background:var(--purple);color:white;margin-top:6px}
+.btn-primary{width:100%;min-height:56px;padding:16px;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;border:none;background:var(--purple);color:#fff;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-primary:active{background:var(--purple-dk)}
 .btn-primary:disabled{opacity:.5}
-.btn-secondary{width:100%;padding:14px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;border:none;background:var(--surface2);color:var(--text2);margin-top:8px}
-.link-btn{background:none;border:none;color:var(--text3);font-size:12.5px;font-weight:600;cursor:pointer;padding:8px;text-decoration:underline;text-underline-offset:2px}
+.btn-secondary{width:100%;min-height:48px;padding:8px 16px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;border:none;background:var(--purple-lt);color:var(--purple-dk);margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+.link-btn{background:none;border:none;color:var(--purple);font-size:14px;font-weight:700;cursor:pointer;padding:8px;display:inline-flex;align-items:center;gap:8px;border-radius:8px}
+.link-btn.danger{color:var(--red-fg)}
+.links-row{display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
 
-.req{color:var(--red)}
-.error-msg{color:var(--red);font-size:13px;font-weight:600;margin-top:10px;text-align:center}
-.success-banner{background:var(--green-bg);color:var(--green-fg);border-radius:12px;padding:12px 14px;font-size:13px;font-weight:700;margin-bottom:14px;display:none;align-items:center;gap:8px}
+.error-msg{color:var(--red-fg);font-size:14px;font-weight:700;margin-top:16px;text-align:center}
+.error-msg:empty{display:none}
+.success-banner{background:var(--green-bg);color:var(--green-fg);border-radius:12px;padding:16px;font-size:14px;font-weight:700;margin-bottom:16px;display:none;align-items:center;gap:8px}
 .success-banner.show{display:flex}
 
-/* ── LISTA GUASTI ── */
-.search-bar{display:flex;gap:8px;margin-bottom:12px}
-.search-bar input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;background:var(--surface);outline:none}
+/* ── ELENCHI ── */
+.search-bar{position:relative;margin-bottom:16px}
+.search-bar .ic{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.search-bar input{width:100%;min-height:48px;padding:8px 16px 8px 48px;border:1.5px solid var(--border);border-radius:12px;font-size:16px;background:var(--surface);color:var(--text);outline:none;font-family:inherit}
 .search-bar input:focus{border-color:var(--purple)}
-.filter-chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.filter-chips{display:flex;gap:8px;overflow-x:auto;margin-bottom:16px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .filter-chips::-webkit-scrollbar{display:none}
-.f-chip{flex-shrink:0;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;background:var(--surface);border:1.5px solid var(--border);color:var(--text2);cursor:pointer;white-space:nowrap}
-.f-chip.active{background:var(--purple);border-color:var(--purple);color:white}
+.f-chip{flex-shrink:0;min-height:40px;padding:8px 16px;border-radius:24px;font-size:14px;font-weight:700;background:var(--surface);border:1.5px solid var(--border);color:var(--text2);cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:8px}
+.f-chip.active{background:var(--purple);border-color:var(--purple);color:#fff}
+.f-chip[data-f="M1"].active{background:var(--m1);border-color:var(--m1)}
+.f-chip[data-f="M2"].active{background:var(--m2);border-color:var(--m2)}
+.f-chip[data-f="M3"].active{background:var(--m3);border-color:var(--m3);color:var(--text)}
+.f-chip[data-f="M4"].active{background:var(--m4);border-color:var(--m4)}
+.f-chip[data-f="M5"].active{background:var(--m5);border-color:var(--m5)}
+.tabs .f-chip{flex:1;justify-content:center}
 
-.guasto-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px;cursor:pointer}
-.guasto-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.guasto-line-badge{font-size:11px;font-weight:800;color:white;border-radius:8px;padding:3px 8px}
-.guasto-date{font-size:12px;color:var(--text3);font-weight:600}
-.guasto-title{font-size:14.5px;font-weight:700;color:var(--text);margin-bottom:4px}
-.guasto-meta{font-size:12.5px;color:var(--text2);display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
-.guasto-meta span{display:flex;align-items:center;gap:4px}
-.status-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
+.guasto-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--border2);border-radius:16px;padding:16px;margin-bottom:8px;cursor:pointer}
+.guasto-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.guasto-line-badge{font-size:12px;font-weight:700;color:#fff;border-radius:8px;padding:0 8px;line-height:24px}
+.guasto-date{font-size:13px;color:var(--text3)}
+.guasto-title{font-size:16px;font-weight:700;line-height:1.4}
+.guasto-meta{font-size:14px;color:var(--text2);display:flex;flex-wrap:wrap;gap:16px;margin-top:8px}
+.guasto-meta span{display:inline-flex;align-items:center;gap:8px}
+.status-pill{font-size:12px;font-weight:700;padding:0 8px;line-height:24px;border-radius:24px;display:inline-flex;align-items:center;gap:8px}
 .status-pill.riparato{background:var(--green-bg);color:var(--green-fg)}
 .status-pill.non-riparato{background:var(--red-bg);color:var(--red-fg)}
+.status-pill.neutro{background:var(--purple-lt);color:var(--purple-dk)}
 
-.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
-.empty-icon{font-size:44px;margin-bottom:10px}
-.empty-title{font-size:15px;font-weight:700;color:var(--text2);margin-bottom:4px}
-.empty-sub{font-size:13px;color:var(--text3)}
+.empty-state{text-align:center;padding:64px 24px;color:var(--text3)}
+.empty-state .ic{width:48px;height:48px;stroke-width:1.5;margin-bottom:8px}
+.empty-title{font-size:16px;font-weight:700;color:var(--text2);margin-bottom:8px}
+.empty-sub{font-size:14px;color:var(--text3)}
 
-/* ── OVERLAY / DETTAGLIO ── */
+/* ── OVERLAY / SHEET ── */
 .overlay{display:none;position:fixed;inset:0;background:rgba(26,23,53,.5);z-index:200;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
-.sheet{background:var(--surface);border-radius:22px 22px 0 0;padding:20px 20px calc(20px + var(--safe-b));width:100%;max-width:500px;max-height:88vh;overflow-y:auto}
-.sheet-handle{width:40px;height:4px;background:var(--border2);border-radius:4px;margin:0 auto 18px}
-.sheet h2{font-size:18px;font-weight:700;margin-bottom:14px;color:var(--text)}
-.detail-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.sheet{background:var(--surface);border-radius:24px 24px 0 0;padding:16px 16px calc(24px + var(--safe-b));width:100%;max-width:520px;max-height:88vh;overflow-y:auto}
+.sheet-handle{width:40px;height:4px;background:var(--border2);border-radius:4px;margin:0 auto 16px}
+.sheet h2{font-size:20px;font-weight:700;margin-bottom:16px}
+.detail-row{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:48px;padding:8px 0;border-bottom:1px solid var(--border)}
 .detail-row:last-child{border-bottom:none}
-.detail-lbl{font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
-.detail-val{font-size:14px;font-weight:600;color:var(--text);text-align:right;max-width:60%}
-.detail-text{background:var(--surface2);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--text);line-height:1.5;margin-top:6px;white-space:pre-wrap}
-.sheet-btns{display:flex;gap:8px;margin-top:18px}
-.sheet-btns button{flex:1;padding:13px 6px;border-radius:14px;font-size:13.5px;font-weight:700;cursor:pointer;border:none}
+.detail-lbl{font-size:14px;color:var(--text2)}
+.detail-val{font-size:15px;font-weight:700;text-align:right;max-width:60%;display:inline-flex;align-items:center;gap:8px}
+.detail-block{margin-top:16px}
+.detail-text{background:var(--surface2);border-radius:12px;padding:16px;font-size:15px;line-height:1.5;margin-top:8px;white-space:pre-wrap}
+.sheet-section{margin-top:24px}
+.sheet-btns{display:flex;gap:8px;margin-top:16px}
+.sheet-btns button{flex:1;min-height:48px;padding:8px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-cancel{background:var(--surface2);color:var(--text2)}
 .btn-edit{background:var(--purple-lt);color:var(--purple-dk)}
 .btn-del{background:var(--red-bg);color:var(--red-fg)}
-.btn-wa{background:#D4EDDA;color:#1E6B3A}
+.btn-wa{background:var(--green);color:#fff}
 
-.toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 16px);left:50%;transform:translateX(-50%);background:var(--text);color:white;padding:11px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:500;opacity:0;transition:opacity .25s;pointer-events:none}
+/* ── STATISTICHE ── */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;flex-direction:column}
+.kpi-lbl{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px}
+.kpi-val{font-size:32px;font-weight:700;line-height:1.2;margin-top:8px}
+.kpi-sub{font-size:12px;color:var(--text3)}
+.kpi-delta{font-size:12px;line-height:1.4;margin-top:8px;color:var(--text3)}
+.kpi-delta b{font-weight:700}
+.kpi-delta.bene b{color:var(--green-fg)}
+.kpi-delta.male b{color:var(--red-fg)}
+.kpi.ko .kpi-val{color:var(--red-fg)}
+.kpi.ok .kpi-val{color:var(--green-fg)}
+.card-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-hint{font-size:13px;color:var(--text3);margin-top:8px;margin-bottom:16px;line-height:1.4}
+.bar-item{margin-bottom:16px}
+.bar-item:last-child{margin-bottom:0}
+.bar-head{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.bar-head span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-head b{font-weight:700;flex-shrink:0}
+.bar-track{height:8px;border-radius:8px;background:var(--surface2);margin-top:8px;display:flex;overflow:hidden}
+.bar-track.big{height:16px}
+.bar-fill{height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:var(--text2);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend i{display:inline-block;width:16px;height:3px;border-radius:2px}
+.rank-row{display:flex;align-items:center;gap:8px;min-height:56px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.rank-row:last-child{border-bottom:none}
+.rank-main{flex:1;min-width:0}
+.rank-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.rank-sub{font-size:13px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-count{text-align:right;font-size:20px;font-weight:700;color:var(--purple);line-height:1.1}
+.rank-count small{display:block;font-size:11px;font-weight:400;color:var(--text3)}
+.rank-row > .ic{color:var(--text3)}
+.chart svg{display:block;width:100%;height:auto}
+
+.toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 16px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:8px 24px;line-height:24px;border-radius:24px;font-size:14px;font-weight:700;z-index:500;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
 </style>
 </head>
 <body>
 
+<!-- ══════════ ICONE (Lucide) ══════════ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-train" viewBox="0 0 24 24"><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="m9 15-1-1"/><path d="m15 15 1-1"/><path d="M9 19c-2.8 0-5-2.2-5-5v-4a8 8 0 0 1 16 0v4c0 2.8-2.2 5-5 5Z"/><path d="m8 19-2 3"/><path d="m16 19 2 3"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+</svg>
+
 <!-- ══════════ APP ══════════ -->
 <div id="appRoot" style="height:100%;display:flex;flex-direction:column">
 
-  <div class="topbar">
-    <div class="topbar-logo">Guasti<span>Metro</span></div>
-  </div>
+  <header class="topbar">
+    <div class="topbar-logo"><svg class="ic ic-lg"><use href="#i-alert"/></svg>Guasti<span>Metro</span></div>
+    <div class="firma">v3.0.0 · Creato da<br>Denis Tramontano</div>
+  </header>
 
-  <div class="scroll-area">
+  <main class="scroll-area">
 
     <!-- ── PAGINA: NUOVO GUASTO ── -->
-    <div class="page active" id="page-guasto">
+    <section class="page active" id="page-guasto">
       <div class="sec-header">
-        <div class="sec-title">Nuovo guasto</div>
+        <h1 class="sec-title">Nuovo guasto</h1>
         <div class="sec-sub">Compila i campi per registrare la segnalazione</div>
       </div>
 
-      <div class="success-banner" id="successBanner">✅ Guasto registrato con successo</div>
+      <div class="success-banner" id="successBanner"><svg class="ic"><use href="#i-check-circle"/></svg>Guasto registrato con successo</div>
 
       <div class="card">
         <div class="field">
-          <label>Linea <span class="req">*</span></label>
+          <div class="lbl">Linea <span class="req">*</span></div>
           <div class="line-select" id="lineSelect">
             <label class="line-opt" data-line="M1"><input type="radio" name="linea" value="M1"><div class="line-opt-box">M1</div></label>
             <label class="line-opt" data-line="M2"><input type="radio" name="linea" value="M2"><div class="line-opt-box">M2</div></label>
@@ -180,63 +260,63 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
         <div class="field-row">
           <div class="field">
-            <label>Data <span class="req">*</span></label>
+            <label for="f-data">Data <span class="req">*</span></label>
             <input type="date" id="f-data">
           </div>
           <div class="field">
-            <label>Ora <span class="req">*</span></label>
+            <label for="f-ora">Ora <span class="req">*</span></label>
             <input type="time" id="f-ora">
           </div>
         </div>
 
         <div class="field-row">
           <div class="field">
-            <label>Materiale</label>
-            <select id="f-materiale"><option value="">Seleziona linea prima</option></select>
+            <label for="f-materiale">Materiale</label>
+            <select id="f-materiale"><option value="">Prima la linea</option></select>
           </div>
           <div class="field">
-            <label>Vettura <span class="hint" style="display:inline">(matricola)</span></label>
-            <select id="f-vettura"><option value="">Seleziona materiale prima</option></select>
+            <label for="f-vettura">Vettura <span class="hint">matricola</span></label>
+            <select id="f-vettura"><option value="">—</option></select>
           </div>
         </div>
 
         <div class="field">
-          <label>Numero treno</label>
+          <label for="f-numerotreno">Numero treno</label>
           <input type="text" id="f-numerotreno" placeholder="Es. 123" inputmode="numeric">
         </div>
 
         <div class="field">
-          <label>Stazione evento <span class="req">*</span></label>
-          <select id="f-stazione"><option value="">Seleziona linea prima</option></select>
+          <label for="f-stazione">Stazione evento <span class="req">*</span></label>
+          <select id="f-stazione"><option value="">Prima la linea</option></select>
         </div>
 
         <div class="field">
-          <label>Descrizione predefinita <span class="hint" style="display:inline">(opzionale)</span></label>
+          <label for="f-breve-preset">Descrizione predefinita <span class="hint">opzionale</span></label>
           <select id="f-breve-preset" onchange="applicaDescrizionePreset('f-breve', this.value)">
             <option value="">Seleziona...</option>
           </select>
         </div>
 
         <div class="field">
-          <label>Descrizione breve <span class="req">*</span></label>
+          <label for="f-breve">Descrizione breve <span class="req">*</span></label>
           <input type="text" id="f-breve" placeholder="Sintesi del guasto" maxlength="120">
         </div>
 
         <div class="field">
-          <label>Descrizione estesa</label>
+          <label for="f-estesa">Descrizione estesa</label>
           <textarea id="f-estesa" placeholder="Dettagli, circostanze, intervento effettuato..."></textarea>
         </div>
 
         <div class="field">
-          <label>Riparato <span class="req">*</span></label>
+          <div class="lbl">Riparato <span class="req">*</span></div>
           <div class="toggle-group">
-            <label class="toggle-opt"><input type="radio" name="riparato" value="si" onchange="toggleRientro()"><div class="toggle-opt-box">✅ Sì</div></label>
-            <label class="toggle-opt"><input type="radio" name="riparato" value="no" onchange="toggleRientro()"><div class="toggle-opt-box">❌ No</div></label>
+            <label class="toggle-opt"><input type="radio" name="riparato" value="si" onchange="toggleRientro()"><div class="toggle-opt-box"><svg class="ic"><use href="#i-check-circle"/></svg>Sì</div></label>
+            <label class="toggle-opt"><input type="radio" name="riparato" value="no" onchange="toggleRientro()"><div class="toggle-opt-box"><svg class="ic"><use href="#i-x-circle"/></svg>No</div></label>
           </div>
         </div>
 
         <div class="field" id="rientroField" style="display:none">
-          <label>Rientrato dove</label>
+          <label for="f-rientro">Rientrato dove</label>
           <input type="text" id="f-rientro" placeholder="Es. deposito, capolinea...">
         </div>
 
@@ -244,24 +324,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="error-msg" id="formError"></div>
       </div>
 
-      <div style="text-align:center;margin-top:6px">
-        <button class="link-btn" onclick="apriGestioneMateriali()">⚙️ Gestisci materiali</button>
-        <button class="link-btn" onclick="apriGestioneDescrizioni()">📋 Gestisci descrizioni</button>
+      <div class="links-row">
+        <button class="link-btn" onclick="apriGestioneMateriali()"><svg class="ic"><use href="#i-train"/></svg>Gestisci materiali</button>
+        <button class="link-btn" onclick="apriGestioneDescrizioni()"><svg class="ic"><use href="#i-file"/></svg>Gestisci descrizioni</button>
       </div>
-    </div>
+    </section>
 
     <!-- ── PAGINA: NUOVA SEGNALAZIONE ── -->
-    <div class="page" id="page-segnalazione">
+    <section class="page" id="page-segnalazione">
       <div class="sec-header">
-        <div class="sec-title">Nuova segnalazione</div>
+        <h1 class="sec-title">Nuova segnalazione</h1>
         <div class="sec-sub">Segnala un problema da inviare ai depositi</div>
       </div>
 
-      <div class="success-banner" id="successBannerSeg">✅ Segnalazione registrata con successo</div>
+      <div class="success-banner" id="successBannerSeg"><svg class="ic"><use href="#i-check-circle"/></svg>Segnalazione registrata con successo</div>
 
       <div class="card">
         <div class="field">
-          <label>Linea <span class="req">*</span></label>
+          <div class="lbl">Linea <span class="req">*</span></div>
           <div class="line-select" id="lineSelectSeg">
             <label class="line-opt" data-line="M1"><input type="radio" name="lineaSeg" value="M1"><div class="line-opt-box">M1</div></label>
             <label class="line-opt" data-line="M2"><input type="radio" name="lineaSeg" value="M2"><div class="line-opt-box">M2</div></label>
@@ -273,40 +353,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
         <div class="field-row">
           <div class="field">
-            <label>Data <span class="req">*</span></label>
+            <label for="s-data">Data <span class="req">*</span></label>
             <input type="date" id="s-data">
           </div>
           <div class="field">
-            <label>Ora <span class="req">*</span></label>
+            <label for="s-ora">Ora <span class="req">*</span></label>
             <input type="time" id="s-ora">
           </div>
         </div>
 
         <div class="field-row">
           <div class="field">
-            <label>Materiale</label>
-            <select id="s-materiale"><option value="">Seleziona linea prima</option></select>
+            <label for="s-materiale">Materiale</label>
+            <select id="s-materiale"><option value="">Prima la linea</option></select>
           </div>
           <div class="field">
-            <label>Vettura <span class="hint" style="display:inline">(matricola)</span></label>
-            <select id="s-vettura"><option value="">Seleziona materiale prima</option></select>
+            <label for="s-vettura">Vettura <span class="hint">matricola</span></label>
+            <select id="s-vettura"><option value="">—</option></select>
           </div>
         </div>
 
         <div class="field">
-          <label>Descrizione predefinita <span class="hint" style="display:inline">(opzionale)</span></label>
+          <label for="s-breve-preset">Descrizione predefinita <span class="hint">opzionale</span></label>
           <select id="s-breve-preset" onchange="applicaDescrizionePreset('s-breve', this.value)">
             <option value="">Seleziona...</option>
           </select>
         </div>
 
         <div class="field">
-          <label>Descrizione breve <span class="req">*</span></label>
+          <label for="s-breve">Descrizione breve <span class="req">*</span></label>
           <input type="text" id="s-breve" placeholder="Sintesi della segnalazione" maxlength="120">
         </div>
 
         <div class="field">
-          <label>Descrizione estesa</label>
+          <label for="s-estesa">Descrizione estesa</label>
           <textarea id="s-estesa" placeholder="Dettagli, circostanze..."></textarea>
         </div>
 
@@ -314,46 +394,47 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="error-msg" id="formErrorSeg"></div>
       </div>
 
-      <div style="text-align:center;margin-top:6px">
-        <button class="link-btn" onclick="apriGestioneMateriali()">⚙️ Gestisci materiali</button>
-        <button class="link-btn" onclick="apriGestioneDescrizioni()">📋 Gestisci descrizioni</button>
+      <div class="links-row">
+        <button class="link-btn" onclick="apriGestioneMateriali()"><svg class="ic"><use href="#i-train"/></svg>Gestisci materiali</button>
+        <button class="link-btn" onclick="apriGestioneDescrizioni()"><svg class="ic"><use href="#i-file"/></svg>Gestisci descrizioni</button>
       </div>
-    </div>
+    </section>
 
     <!-- ── PAGINA: ELENCHI ── -->
-    <div class="page" id="page-elenco">
+    <section class="page" id="page-elenco">
       <div class="sec-header">
-        <div class="sec-title">Elenchi</div>
+        <h1 class="sec-title">Elenchi</h1>
         <div class="sec-sub" id="elencoCount">—</div>
       </div>
 
-      <div class="filter-chips" style="margin-bottom:16px">
-        <div class="f-chip active" data-tab="guasti" onclick="setElencoTab('guasti',this)">🚧 Guasti</div>
-        <div class="f-chip" data-tab="segnalazioni" onclick="setElencoTab('segnalazioni',this)">📣 Segnalazioni</div>
+      <div class="filter-chips tabs">
+        <button class="f-chip active" data-tab="guasti" onclick="setElencoTab('guasti',this)"><svg class="ic ic-sm"><use href="#i-alert"/></svg>Guasti</button>
+        <button class="f-chip" data-tab="segnalazioni" onclick="setElencoTab('segnalazioni',this)"><svg class="ic ic-sm"><use href="#i-megaphone"/></svg>Segnalazioni</button>
       </div>
 
       <!-- ── TAB GUASTI ── -->
       <div id="tab-guasti">
         <div class="search-bar">
-          <input type="text" id="searchInput" placeholder="Cerca per testo, materiale, stazione..." oninput="renderElenco()">
+          <svg class="ic"><use href="#i-search"/></svg>
+          <input type="search" id="searchInput" placeholder="Cerca testo, materiale, stazione..." oninput="renderElenco()">
         </div>
         <div class="filter-chips" id="lineFilters">
-          <div class="f-chip active" data-f="ALL" onclick="setLineFilter('ALL',this)">Tutte</div>
-          <div class="f-chip" data-f="M1" onclick="setLineFilter('M1',this)">M1</div>
-          <div class="f-chip" data-f="M2" onclick="setLineFilter('M2',this)">M2</div>
-          <div class="f-chip" data-f="M3" onclick="setLineFilter('M3',this)">M3</div>
-          <div class="f-chip" data-f="M4" onclick="setLineFilter('M4',this)">M4</div>
-          <div class="f-chip" data-f="M5" onclick="setLineFilter('M5',this)">M5</div>
+          <button class="f-chip active" data-f="ALL" onclick="setLineFilter('ALL',this)">Tutte</button>
+          <button class="f-chip" data-f="M1" onclick="setLineFilter('M1',this)">M1</button>
+          <button class="f-chip" data-f="M2" onclick="setLineFilter('M2',this)">M2</button>
+          <button class="f-chip" data-f="M3" onclick="setLineFilter('M3',this)">M3</button>
+          <button class="f-chip" data-f="M4" onclick="setLineFilter('M4',this)">M4</button>
+          <button class="f-chip" data-f="M5" onclick="setLineFilter('M5',this)">M5</button>
         </div>
         <div class="filter-chips">
-          <div class="f-chip active" data-s="ALL" onclick="setStatusFilter('ALL',this)">Tutti gli stati</div>
-          <div class="f-chip" data-s="no" onclick="setStatusFilter('no',this)">Non riparati</div>
-          <div class="f-chip" data-s="si" onclick="setStatusFilter('si',this)">Riparati</div>
+          <button class="f-chip active" data-s="ALL" onclick="setStatusFilter('ALL',this)">Tutti gli stati</button>
+          <button class="f-chip" data-s="no" onclick="setStatusFilter('no',this)">Non riparati</button>
+          <button class="f-chip" data-s="si" onclick="setStatusFilter('si',this)">Riparati</button>
         </div>
 
-        <div class="field-row" style="margin-bottom:14px">
+        <div class="field-row" style="margin-bottom:16px">
           <div class="field" style="margin-bottom:0">
-            <label>Mese</label>
+            <label for="monthFilter">Mese</label>
             <select id="monthFilter" onchange="renderElenco()">
               <option value="ALL">Tutti i mesi</option>
               <option value="01">Gennaio</option>
@@ -371,24 +452,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             </select>
           </div>
           <div class="field" style="margin-bottom:0">
-            <label>Anno</label>
+            <label for="yearFilter">Anno</label>
             <select id="yearFilter" onchange="renderElenco()">
               <option value="ALL">Tutti gli anni</option>
             </select>
           </div>
         </div>
 
-        <div class="field-row" style="margin-bottom:14px">
+        <div class="field-row" style="margin-bottom:16px">
           <div class="field" style="margin-bottom:0">
-            <label>Giorno specifico</label>
+            <label for="dayFilter">Giorno specifico</label>
             <input type="date" id="dayFilter" onchange="renderElenco()">
           </div>
           <div class="field" style="margin-bottom:0;display:flex;align-items:flex-end">
-            <button class="btn-secondary" style="margin-top:0;width:100%;padding:12px" onclick="document.getElementById('dayFilter').value='';renderElenco()">✕ Reset</button>
+            <button class="btn-secondary" style="margin-top:0" onclick="document.getElementById('dayFilter').value='';renderElenco()"><svg class="ic ic-sm"><use href="#i-x"/></svg>Reset giorno</button>
           </div>
         </div>
 
-        <button class="btn-secondary" style="margin-top:0;margin-bottom:14px" onclick="scaricaCSV()">⬇️ Scarica elenco (CSV)</button>
+        <button class="btn-secondary" style="margin-top:0;margin-bottom:16px" onclick="scaricaCSV()"><svg class="ic"><use href="#i-download"/></svg>Scarica elenco (CSV)</button>
 
         <div id="elencoList"></div>
       </div>
@@ -396,20 +477,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <!-- ── TAB SEGNALAZIONI ── -->
       <div id="tab-segnalazioni" style="display:none">
         <div class="search-bar">
-          <input type="text" id="searchInputSeg" placeholder="Cerca per testo, vettura..." oninput="renderElencoSeg()">
+          <svg class="ic"><use href="#i-search"/></svg>
+          <input type="search" id="searchInputSeg" placeholder="Cerca testo, vettura..." oninput="renderElencoSeg()">
         </div>
         <div class="filter-chips" id="lineFiltersSeg">
-          <div class="f-chip active" data-f="ALL" onclick="setLineFilterSeg('ALL',this)">Tutte</div>
-          <div class="f-chip" data-f="M1" onclick="setLineFilterSeg('M1',this)">M1</div>
-          <div class="f-chip" data-f="M2" onclick="setLineFilterSeg('M2',this)">M2</div>
-          <div class="f-chip" data-f="M3" onclick="setLineFilterSeg('M3',this)">M3</div>
-          <div class="f-chip" data-f="M4" onclick="setLineFilterSeg('M4',this)">M4</div>
-          <div class="f-chip" data-f="M5" onclick="setLineFilterSeg('M5',this)">M5</div>
+          <button class="f-chip active" data-f="ALL" onclick="setLineFilterSeg('ALL',this)">Tutte</button>
+          <button class="f-chip" data-f="M1" onclick="setLineFilterSeg('M1',this)">M1</button>
+          <button class="f-chip" data-f="M2" onclick="setLineFilterSeg('M2',this)">M2</button>
+          <button class="f-chip" data-f="M3" onclick="setLineFilterSeg('M3',this)">M3</button>
+          <button class="f-chip" data-f="M4" onclick="setLineFilterSeg('M4',this)">M4</button>
+          <button class="f-chip" data-f="M5" onclick="setLineFilterSeg('M5',this)">M5</button>
         </div>
 
-        <div class="field-row" style="margin-bottom:14px">
+        <div class="field-row" style="margin-bottom:16px">
           <div class="field" style="margin-bottom:0">
-            <label>Mese</label>
+            <label for="monthFilterSeg">Mese</label>
             <select id="monthFilterSeg" onchange="renderElencoSeg()">
               <option value="ALL">Tutti i mesi</option>
               <option value="01">Gennaio</option>
@@ -427,40 +509,73 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             </select>
           </div>
           <div class="field" style="margin-bottom:0">
-            <label>Anno</label>
+            <label for="yearFilterSeg">Anno</label>
             <select id="yearFilterSeg" onchange="renderElencoSeg()">
               <option value="ALL">Tutti gli anni</option>
             </select>
           </div>
         </div>
 
-        <div class="field-row" style="margin-bottom:14px">
+        <div class="field-row" style="margin-bottom:16px">
           <div class="field" style="margin-bottom:0">
-            <label>Giorno specifico</label>
+            <label for="dayFilterSeg">Giorno specifico</label>
             <input type="date" id="dayFilterSeg" onchange="renderElencoSeg()">
           </div>
           <div class="field" style="margin-bottom:0;display:flex;align-items:flex-end">
-            <button class="btn-secondary" style="margin-top:0;width:100%;padding:12px" onclick="document.getElementById('dayFilterSeg').value='';renderElencoSeg()">✕ Reset</button>
+            <button class="btn-secondary" style="margin-top:0" onclick="document.getElementById('dayFilterSeg').value='';renderElencoSeg()"><svg class="ic ic-sm"><use href="#i-x"/></svg>Reset giorno</button>
           </div>
         </div>
 
-        <button class="btn-secondary" style="margin-top:0;margin-bottom:14px" onclick="scaricaCSVSeg()">⬇️ Scarica elenco (CSV)</button>
+        <button class="btn-secondary" style="margin-top:0;margin-bottom:16px" onclick="scaricaCSVSeg()"><svg class="ic"><use href="#i-download"/></svg>Scarica elenco (CSV)</button>
 
         <div id="elencoListSeg"></div>
       </div>
-    </div>
+    </section>
 
-  </div>
+    <!-- ── PAGINA: STATISTICHE ── -->
+    <section class="page" id="page-stat">
+      <div class="sec-header">
+        <h1 class="sec-title">Statistiche</h1>
+        <div class="sec-sub" id="statSub">—</div>
+      </div>
+
+      <div class="filter-chips tabs" id="statModo">
+        <button class="f-chip active" data-v="guasti" onclick="setStat('modo','guasti',this)"><svg class="ic ic-sm"><use href="#i-alert"/></svg>Per guasto</button>
+        <button class="f-chip" data-v="treni" onclick="setStat('modo','treni',this)"><svg class="ic ic-sm"><use href="#i-train"/></svg>Per treno</button>
+      </div>
+      <div class="filter-chips" id="statPeriodo">
+        <button class="f-chip active" onclick="setStat('periodo','anno',this)">Quest'anno</button>
+        <button class="f-chip" onclick="setStat('periodo','mese',this)">Questo mese</button>
+        <button class="f-chip" onclick="setStat('periodo','90',this)">Ultimi 90 giorni</button>
+        <button class="f-chip" onclick="setStat('periodo','tutto',this)">Tutto</button>
+      </div>
+      <div class="filter-chips" id="statLinee">
+        <button class="f-chip active" data-f="ALL" onclick="setStat('linea','ALL',this)">Tutte</button>
+        <button class="f-chip" data-f="M1" onclick="setStat('linea','M1',this)">M1</button>
+        <button class="f-chip" data-f="M2" onclick="setStat('linea','M2',this)">M2</button>
+        <button class="f-chip" data-f="M3" onclick="setStat('linea','M3',this)">M3</button>
+        <button class="f-chip" data-f="M4" onclick="setStat('linea','M4',this)">M4</button>
+        <button class="f-chip" data-f="M5" onclick="setStat('linea','M5',this)">M5</button>
+      </div>
+
+      <div class="kpi-grid" id="statKpi"></div>
+      <div id="statBody"></div>
+    </section>
+
+  </main>
 
   <nav class="bottom-nav">
     <button class="nav-item active" id="nav-guasto" onclick="switchPage('guasto',this)">
-      <span class="nav-icon">🚧</span><span class="nav-label">Guasto</span>
+      <svg class="ic ic-lg"><use href="#i-alert"/></svg><span class="nav-label">Guasto</span>
     </button>
     <button class="nav-item" id="nav-segnalazione" onclick="switchPage('segnalazione',this)">
-      <span class="nav-icon">📣</span><span class="nav-label">Segnalazione</span>
+      <svg class="ic ic-lg"><use href="#i-megaphone"/></svg><span class="nav-label">Segnalazione</span>
     </button>
     <button class="nav-item" id="nav-elenco" onclick="switchPage('elenco',this)">
-      <span class="nav-icon">📋</span><span class="nav-label">Elenchi</span>
+      <svg class="ic ic-lg"><use href="#i-list"/></svg><span class="nav-label">Elenchi</span>
+    </button>
+    <button class="nav-item" id="nav-stat" onclick="switchPage('stat',this)">
+      <svg class="ic ic-lg"><use href="#i-chart"/></svg><span class="nav-label">Statistiche</span>
     </button>
   </nav>
 </div>
@@ -472,12 +587,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <h2 id="detailTitle">Dettaglio guasto</h2>
     <div id="detailContent"></div>
     <div class="sheet-btns">
-      <button class="btn-cancel" onclick="closeDetail()">Chiudi</button>
-      <button class="btn-wa" onclick="inviaWhatsApp()">📲 WhatsApp</button>
+      <button class="btn-cancel" onclick="closeDetail()"><svg class="ic"><use href="#i-x"/></svg>Chiudi</button>
+      <button class="btn-wa" onclick="inviaWhatsApp()"><svg class="ic"><use href="#i-message"/></svg>WhatsApp</button>
     </div>
     <div class="sheet-btns" style="margin-top:8px">
-      <button class="btn-edit" onclick="modificaItem()">✏️ Modifica</button>
-      <button class="btn-del" id="btnDeleteGuasto" onclick="eliminaItem()">Elimina</button>
+      <button class="btn-edit" onclick="modificaItem()"><svg class="ic"><use href="#i-pencil"/></svg>Modifica</button>
+      <button class="btn-del" id="btnDeleteGuasto" onclick="eliminaItem()"><svg class="ic"><use href="#i-trash"/></svg>Elimina</button>
     </div>
   </div>
 </div>
@@ -487,10 +602,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="sheet">
     <div class="sheet-handle"></div>
     <h2 id="materialiTitle">Gestisci materiali</h2>
-    <div class="sec-sub" style="margin-bottom:14px" id="materialiSub">Aggiungi un nuovo materiale e le sue vetture</div>
+    <div class="sec-sub" style="margin-bottom:16px" id="materialiSub">Aggiungi un nuovo materiale e le sue vetture</div>
 
     <div class="field">
-      <label>Linea <span class="req">*</span></label>
+      <div class="lbl">Linea <span class="req">*</span></div>
       <div class="line-select" id="lineSelectMat">
         <label class="line-opt" data-line="M1"><input type="radio" name="lineaMat" value="M1"><div class="line-opt-box">M1</div></label>
         <label class="line-opt" data-line="M2"><input type="radio" name="lineaMat" value="M2"><div class="line-opt-box">M2</div></label>
@@ -501,12 +616,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
 
     <div class="field">
-      <label>Matricola materiale (treno) <span class="req">*</span></label>
+      <label for="mat-principale">Matricola materiale (treno) <span class="req">*</span></label>
       <input type="text" id="mat-principale" placeholder="Es. 999" inputmode="numeric">
     </div>
 
     <div class="field">
-      <label>Vetture <span class="req">*</span> <span class="hint" style="display:inline">(separate da virgola, es. 999,1200,450)</span></label>
+      <label for="mat-vetture">Vetture <span class="req">*</span> <span class="hint">separate da virgola</span></label>
       <input type="text" id="mat-vetture" placeholder="Es. 999,1200,450">
     </div>
 
@@ -514,24 +629,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="btn-secondary" id="btnAnnullaModificaMateriale" style="display:none" onclick="annullaModificaMateriale()">Annulla modifica</button>
     <div class="error-msg" id="materialiError"></div>
 
-    <div style="margin-top:22px">
-      <div class="detail-lbl" style="margin-bottom:8px">Tutti i materiali</div>
-      <div class="search-bar" style="margin-bottom:10px">
-        <input type="text" id="materialiSearch" placeholder="Cerca matricola..." oninput="renderMaterialiList()">
+    <div class="sheet-section">
+      <div class="lbl">Tutti i materiali</div>
+      <div class="search-bar">
+        <svg class="ic"><use href="#i-search"/></svg>
+        <input type="search" id="materialiSearch" placeholder="Cerca matricola..." oninput="renderMaterialiList()">
       </div>
-      <div class="filter-chips" id="materialiLineFilters" style="margin-bottom:10px">
-        <div class="f-chip active" data-f="ALL" onclick="setMaterialiLineFilter('ALL',this)">Tutte</div>
-        <div class="f-chip" data-f="M1" onclick="setMaterialiLineFilter('M1',this)">M1</div>
-        <div class="f-chip" data-f="M2" onclick="setMaterialiLineFilter('M2',this)">M2</div>
-        <div class="f-chip" data-f="M3" onclick="setMaterialiLineFilter('M3',this)">M3</div>
-        <div class="f-chip" data-f="M4" onclick="setMaterialiLineFilter('M4',this)">M4</div>
-        <div class="f-chip" data-f="M5" onclick="setMaterialiLineFilter('M5',this)">M5</div>
+      <div class="filter-chips" id="materialiLineFilters">
+        <button class="f-chip active" data-f="ALL" onclick="setMaterialiLineFilter('ALL',this)">Tutte</button>
+        <button class="f-chip" data-f="M1" onclick="setMaterialiLineFilter('M1',this)">M1</button>
+        <button class="f-chip" data-f="M2" onclick="setMaterialiLineFilter('M2',this)">M2</button>
+        <button class="f-chip" data-f="M3" onclick="setMaterialiLineFilter('M3',this)">M3</button>
+        <button class="f-chip" data-f="M4" onclick="setMaterialiLineFilter('M4',this)">M4</button>
+        <button class="f-chip" data-f="M5" onclick="setMaterialiLineFilter('M5',this)">M5</button>
       </div>
       <div id="materialiFullList"></div>
     </div>
 
     <div class="sheet-btns">
-      <button class="btn-cancel" onclick="chiudiGestioneMateriali()">Chiudi</button>
+      <button class="btn-cancel" onclick="chiudiGestioneMateriali()"><svg class="ic"><use href="#i-x"/></svg>Chiudi</button>
     </div>
   </div>
 </div>
@@ -541,10 +657,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="sheet">
     <div class="sheet-handle"></div>
     <h2 id="descrizioniTitle">Gestisci descrizioni</h2>
-    <div class="sec-sub" style="margin-bottom:14px" id="descrizioniSub">Aggiungi una descrizione breve predefinita, utilizzabile sia per i guasti che per le segnalazioni</div>
+    <div class="sec-sub" style="margin-bottom:16px" id="descrizioniSub">Aggiungi una descrizione breve predefinita, utilizzabile sia per i guasti che per le segnalazioni</div>
 
     <div class="field">
-      <label>Testo descrizione <span class="req">*</span></label>
+      <label for="descr-testo">Testo descrizione <span class="req">*</span></label>
       <input type="text" id="descr-testo" placeholder="Es. Porta bloccata in chiusura" maxlength="120">
     </div>
 
@@ -552,16 +668,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="btn-secondary" id="btnAnnullaModificaDescrizione" style="display:none" onclick="annullaModificaDescrizione()">Annulla modifica</button>
     <div class="error-msg" id="descrizioniError"></div>
 
-    <div style="margin-top:22px">
-      <div class="detail-lbl" style="margin-bottom:8px">Tutte le descrizioni</div>
-      <div class="search-bar" style="margin-bottom:10px">
-        <input type="text" id="descrizioniSearch" placeholder="Cerca descrizione..." oninput="renderDescrizioniList()">
+    <div class="sheet-section">
+      <div class="lbl">Tutte le descrizioni</div>
+      <div class="search-bar">
+        <svg class="ic"><use href="#i-search"/></svg>
+        <input type="search" id="descrizioniSearch" placeholder="Cerca descrizione..." oninput="renderDescrizioniList()">
       </div>
       <div id="descrizioniFullList"></div>
     </div>
 
     <div class="sheet-btns">
-      <button class="btn-cancel" onclick="chiudiGestioneDescrizioni()">Chiudi</button>
+      <button class="btn-cancel" onclick="chiudiGestioneDescrizioni()"><svg class="ic"><use href="#i-x"/></svg>Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SHEET STATISTICHE (elenco guasti di un treno / gruppo) ── -->
+<div class="overlay" id="statOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="statSheetTitle">Guasti</h2>
+    <div class="sec-sub" style="margin-bottom:16px" id="statSheetSub"></div>
+    <div id="statSheetList"></div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" onclick="document.getElementById('statOverlay').classList.remove('open')"><svg class="ic"><use href="#i-x"/></svg>Chiudi</button>
     </div>
   </div>
 </div>
@@ -614,7 +744,12 @@ function ricalcolaMateriali(){
   MATERIALI = merged;
 }
 let DESCRIZIONI_PRESET = {}; // {id: testo}
-const LINE_COLORS = {M1:"#D84040",M2:"#2E9E4F",M3:"#D9B400",M4:"#1E6FD9",M5:"#8C4DD9"};
+const LINE_COLORS = {M1:"#E03B3B",M2:"#1FA352",M3:"#F2C200",M4:"#1E6FE0",M5:"#8B4DE0"};
+const LINE_TEXT = {M3:"#1A1735"};
+function ic(nome, cls){ return `<svg class="ic ${cls===undefined?'ic-sm':cls}"><use href="#i-${nome}"/></svg>`; }
+function badgeLinea(l){ return `<span class="guasto-line-badge" style="background:${LINE_COLORS[l]||'#888'};color:${LINE_TEXT[l]||'#fff'}">${escapeHtml(l||'-')}</span>`; }
+/* Data locale YYYY-MM-DD (toISOString usa UTC e dopo mezzanotte dava il giorno prima) */
+function oggiISO(d){ d = d || new Date(); const p = n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
 
 let allGuasti = {};
 let allSegnalazioni = {};
@@ -629,9 +764,9 @@ let editSegId = null;
 /* ════════ INIT FORM ════════ */
 function initForm(){
   const today = new Date();
-  document.getElementById('f-data').value = today.toISOString().slice(0,10);
+  document.getElementById('f-data').value = oggiISO(today);
   document.getElementById('f-ora').value = today.toTimeString().slice(0,5);
-  document.getElementById('s-data').value = today.toISOString().slice(0,10);
+  document.getElementById('s-data').value = oggiISO(today);
   document.getElementById('s-ora').value = today.toTimeString().slice(0,5);
 
 
@@ -667,7 +802,7 @@ function populateMateriali(materialeSelId, vetturaSelId, linea){
   Object.keys(treni).forEach(t=>{
     const o = document.createElement('option'); o.value=t; o.textContent=t; sel.appendChild(o);
   });
-  document.getElementById(vetturaSelId).innerHTML = '<option value="">Seleziona materiale prima</option>';
+  document.getElementById(vetturaSelId).innerHTML = '<option value="">—</option>';
 }
 function populateVettura(vetturaSelId, linea, materiale){
   const sel = document.getElementById(vetturaSelId);
@@ -729,16 +864,16 @@ function salvaGuasto(){
 function resetForm(){
   document.querySelectorAll('input[name="linea"]').forEach(r=>r.checked=false);
   document.querySelectorAll('input[name="riparato"]').forEach(r=>r.checked=false);
-  document.getElementById('f-materiale').innerHTML='<option value="">Seleziona linea prima</option>';
-  document.getElementById('f-vettura').innerHTML='<option value="">Seleziona materiale prima</option>';
+  document.getElementById('f-materiale').innerHTML='<option value="">Prima la linea</option>';
+  document.getElementById('f-vettura').innerHTML='<option value="">—</option>';
   document.getElementById('f-numerotreno').value='';
-  document.getElementById('f-stazione').innerHTML='<option value="">Seleziona linea prima</option>';
+  document.getElementById('f-stazione').innerHTML='<option value="">Prima la linea</option>';
   document.getElementById('f-breve').value='';
   document.getElementById('f-estesa').value='';
   document.getElementById('f-rientro').value='';
   document.getElementById('rientroField').style.display='none';
   const today = new Date();
-  document.getElementById('f-data').value = today.toISOString().slice(0,10);
+  document.getElementById('f-data').value = oggiISO(today);
   document.getElementById('f-ora').value = today.toTimeString().slice(0,5);
   editGuastoId = null;
   document.getElementById('btnSalva').textContent = 'Registra guasto';
@@ -782,12 +917,12 @@ function salvaSegnalazione(){
 }
 function resetFormSeg(){
   document.querySelectorAll('input[name="lineaSeg"]').forEach(r=>r.checked=false);
-  document.getElementById('s-materiale').innerHTML='<option value="">Seleziona linea prima</option>';
-  document.getElementById('s-vettura').innerHTML='<option value="">Seleziona materiale prima</option>';
+  document.getElementById('s-materiale').innerHTML='<option value="">Prima la linea</option>';
+  document.getElementById('s-vettura').innerHTML='<option value="">—</option>';
   document.getElementById('s-breve').value='';
   document.getElementById('s-estesa').value='';
   const today = new Date();
-  document.getElementById('s-data').value = today.toISOString().slice(0,10);
+  document.getElementById('s-data').value = oggiISO(today);
   document.getElementById('s-ora').value = today.toTimeString().slice(0,5);
   editSegId = null;
   document.getElementById('btnSalvaSeg').textContent = 'Registra segnalazione';
@@ -800,6 +935,7 @@ function listenGuasti(){
     allGuasti = snap.val() || {};
     aggiornaAnniDisponibili();
     renderElenco();
+    if(document.getElementById('page-stat').classList.contains('active')) renderStat();
   });
 }
 function listenSegnalazioni(){
@@ -918,28 +1054,29 @@ function renderElenco(){
   }
 
   if(entries.length===0){
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nessun guasto trovato</div><div class="empty-sub">Modifica i filtri o la ricerca</div></div>`;
+    list.innerHTML = `<div class="empty-state">${ic('search','')}<div class="empty-title">Nessun guasto trovato</div><div class="empty-sub">Modifica i filtri o la ricerca</div></div>`;
     return;
   }
 
-  list.innerHTML = entries.map(([id,g])=>{
+  list.innerHTML = entries.map(([id,g])=> htmlCardGuasto(id, g, `openDetail('guasto','${id}')`)).join('');
+}
+function htmlCardGuasto(id, g, onclick){
     const color = LINE_COLORS[g.linea] || '#888';
     const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '';
     const statusClass = g.riparato==='si' ? 'riparato' : 'non-riparato';
-    const statusLabel = g.riparato==='si' ? '✅ Riparato' : '❌ Non riparato';
-    return `<div class="guasto-card" onclick="openDetail('guasto','${id}')">
+    const statusLabel = g.riparato==='si' ? ic('check-circle')+'Riparato' : ic('x-circle')+'Non riparato';
+    return `<div class="guasto-card" style="border-left-color:${color}" onclick="${onclick}">
       <div class="guasto-top">
-        <span class="guasto-line-badge" style="background:${color}">${g.linea}</span>
+        ${badgeLinea(g.linea)}
         <span class="guasto-date">${dataFmt} ${g.ora||''}</span>
       </div>
       <div class="guasto-title">${escapeHtml(g.breve||'')}</div>
       <div class="guasto-meta">
-        <span>📍 ${escapeHtml(g.stazione||'-')}</span>
-        ${(g.materiale||g.vettura)?`<span>🚆 ${escapeHtml(g.materiale||'-')}-${escapeHtml(g.vettura||'-')}</span>`:''}
+        <span>${ic('pin')}${escapeHtml(g.stazione||'-')}</span>
+        ${(g.materiale||g.vettura)?`<span>${ic('train')}${escapeHtml(g.materiale||'-')}-${escapeHtml(g.vettura||'-')}</span>`:''}
       </div>
       <div style="margin-top:8px"><span class="status-pill ${statusClass}">${statusLabel}</span></div>
     </div>`;
-  }).join('');
 }
 function getFilteredEntriesSeg(){
   const q = document.getElementById('searchInputSeg').value.trim().toLowerCase();
@@ -974,22 +1111,22 @@ function renderElencoSeg(){
   }
 
   if(entries.length===0){
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nessuna segnalazione trovata</div><div class="empty-sub">Modifica i filtri o la ricerca</div></div>`;
+    list.innerHTML = `<div class="empty-state">${ic('search','')}<div class="empty-title">Nessuna segnalazione trovata</div><div class="empty-sub">Modifica i filtri o la ricerca</div></div>`;
     return;
   }
 
   list.innerHTML = entries.map(([id,g])=>{
     const color = LINE_COLORS[g.linea] || '#888';
     const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '';
-    return `<div class="guasto-card" onclick="openDetail('segnalazione','${id}')">
+    return `<div class="guasto-card" style="border-left-color:${color}" onclick="openDetail('segnalazione','${id}')">
       <div class="guasto-top">
-        <span class="guasto-line-badge" style="background:${color}">${g.linea}</span>
+        ${badgeLinea(g.linea)}
         <span class="guasto-date">${dataFmt} ${g.ora||''}</span>
       </div>
       <div class="guasto-title">${escapeHtml(g.breve||'')}</div>
       <div class="guasto-meta">
-        ${g.materiale?`<span>🚆 ${escapeHtml(g.materiale)}</span>`:''}
-        ${g.vettura?`<span>🔧 ${escapeHtml(g.vettura)}</span>`:''}
+        ${g.materiale?`<span>${ic('train')}${escapeHtml(g.materiale)}</span>`:''}
+        ${g.vettura?`<span>${ic('wrench')}${escapeHtml(g.vettura)}</span>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1019,7 +1156,7 @@ function scaricaCSV(){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   const now = new Date();
-  const stamp = now.toISOString().slice(0,10);
+  const stamp = oggiISO(now);
   a.href = url;
   a.download = `guasti_${stamp}.csv`;
   document.body.appendChild(a);
@@ -1045,7 +1182,7 @@ function scaricaCSVSeg(){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   const now = new Date();
-  const stamp = now.toISOString().slice(0,10);
+  const stamp = oggiISO(now);
   a.href = url;
   a.download = `segnalazioni_${stamp}.csv`;
   document.body.appendChild(a);
@@ -1077,13 +1214,13 @@ function openDetail(tipo, id){
       <div class="detail-row"><span class="detail-lbl">Vettura</span><span class="detail-val">${escapeHtml(g.vettura)||'-'}</span></div>
       <div class="detail-row"><span class="detail-lbl">Numero treno</span><span class="detail-val">${escapeHtml(g.numeroTreno)||'-'}</span></div>
       <div class="detail-row"><span class="detail-lbl">Stazione</span><span class="detail-val">${escapeHtml(g.stazione)||'-'}</span></div>
-      <div class="detail-row"><span class="detail-lbl">Riparato</span><span class="detail-val">${g.riparato==='si'?'✅ Sì':'❌ No'}</span></div>
+      <div class="detail-row"><span class="detail-lbl">Riparato</span><span class="detail-val">${g.riparato==='si'?ic('check-circle')+'Sì':ic('x-circle')+'No'}</span></div>
       ${g.riparato==='no' && g.rientro ? `<div class="detail-row"><span class="detail-lbl">Rientrato dove</span><span class="detail-val">${escapeHtml(g.rientro)}</span></div>` : ''}
-      <div style="margin-top:12px">
-        <div class="detail-lbl" style="margin-bottom:6px">Descrizione breve</div>
+      <div class="detail-block">
+        <div class="detail-lbl">Descrizione breve</div>
         <div class="detail-text">${escapeHtml(g.breve)||'-'}</div>
       </div>
-      ${g.estesa ? `<div style="margin-top:12px"><div class="detail-lbl" style="margin-bottom:6px">Descrizione estesa</div><div class="detail-text">${escapeHtml(g.estesa)}</div></div>` : ''}
+      ${g.estesa ? `<div class="detail-block"><div class="detail-lbl">Descrizione estesa</div><div class="detail-text">${escapeHtml(g.estesa)}</div></div>` : ''}
     `;
   } else {
     const g = allSegnalazioni[id];
@@ -1096,11 +1233,11 @@ function openDetail(tipo, id){
       <div class="detail-row"><span class="detail-lbl">Data / Ora</span><span class="detail-val">${dataFmt} ${g.ora||''}</span></div>
       <div class="detail-row"><span class="detail-lbl">Materiale</span><span class="detail-val">${escapeHtml(g.materiale)||'-'}</span></div>
       <div class="detail-row"><span class="detail-lbl">Vettura</span><span class="detail-val">${escapeHtml(g.vettura)||'-'}</span></div>
-      <div style="margin-top:12px">
-        <div class="detail-lbl" style="margin-bottom:6px">Descrizione breve</div>
+      <div class="detail-block">
+        <div class="detail-lbl">Descrizione breve</div>
         <div class="detail-text">${escapeHtml(g.breve)||'-'}</div>
       </div>
-      ${g.estesa ? `<div style="margin-top:12px"><div class="detail-lbl" style="margin-bottom:6px">Descrizione estesa</div><div class="detail-text">${escapeHtml(g.estesa)}</div></div>` : ''}
+      ${g.estesa ? `<div class="detail-block"><div class="detail-lbl">Descrizione estesa</div><div class="detail-text">${escapeHtml(g.estesa)}</div></div>` : ''}
     `;
   }
 
@@ -1358,25 +1495,25 @@ function renderMaterialiList(){
   rows.sort((a,b)=> a.linea===b.linea ? (parseInt(a.principale)-parseInt(b.principale)) : a.linea.localeCompare(b.linea));
 
   if(rows.length===0){
-    container.innerHTML = `<div class="empty-state" style="padding:24px 12px"><div class="empty-icon">🔍</div><div class="empty-sub">Nessun materiale trovato</div></div>`;
+    container.innerHTML = `<div class="empty-state" style="padding:24px 16px">${ic('search','')}<div class="empty-sub">Nessun materiale trovato</div></div>`;
     return;
   }
 
-  const badgeLabel = {base:'', manuale:'✏️ manuale', modificato:'✏️ modificato'};
+  const badgeLabel = {base:'', manuale:'Manuale', modificato:'Modificato'};
   container.innerHTML = rows.map(r=>{
     const color = LINE_COLORS[r.linea] || '#888';
-    const tag = badgeLabel[r.origine] ? `<span class="status-pill riparato" style="font-size:10px;padding:2px 8px">${badgeLabel[r.origine]}</span>` : '';
-    return `<div class="guasto-card" style="cursor:default">
+    const tag = badgeLabel[r.origine] ? `<span class="status-pill neutro">${badgeLabel[r.origine]}</span>` : '';
+    return `<div class="guasto-card" style="cursor:default;border-left-color:${color}">
       <div class="guasto-top">
-        <span class="guasto-line-badge" style="background:${color}">${r.linea}</span>
-        <div style="display:flex;gap:10px;align-items:center">
+        ${badgeLinea(r.linea)}
+        <div style="display:flex;gap:8px;align-items:center">
           ${tag}
           <button class="link-btn" onclick="modificaMateriale('${r.linea}','${r.principale}')">Modifica</button>
-          <button class="link-btn" style="color:var(--red-fg)" onclick="eliminaMateriale('${r.linea}','${r.principale}')">Elimina</button>
+          <button class="link-btn danger" onclick="eliminaMateriale('${r.linea}','${r.principale}')">Elimina</button>
         </div>
       </div>
       <div class="guasto-title">Materiale ${escapeHtml(r.principale)}</div>
-      <div class="guasto-meta"><span>🚆 ${r.vetture.map(escapeHtml).join(', ')}</span></div>
+      <div class="guasto-meta"><span>${ic('train')}${r.vetture.map(escapeHtml).join(', ')}</span></div>
     </div>`;
   }).join('');
 }
@@ -1472,7 +1609,7 @@ function renderDescrizioniList(){
   entries.sort((a,b)=> a[1].localeCompare(b[1]));
 
   if(entries.length===0){
-    container.innerHTML = `<div class="empty-state" style="padding:24px 12px"><div class="empty-icon">🔍</div><div class="empty-sub">Nessuna descrizione trovata</div></div>`;
+    container.innerHTML = `<div class="empty-state" style="padding:24px 16px">${ic('search','')}<div class="empty-sub">Nessuna descrizione trovata</div></div>`;
     return;
   }
 
@@ -1480,9 +1617,9 @@ function renderDescrizioniList(){
     return `<div class="guasto-card" style="cursor:default">
       <div class="guasto-top">
         <div class="guasto-title" style="margin-bottom:0">${escapeHtml(testo)}</div>
-        <div style="display:flex;gap:10px;align-items:center;flex-shrink:0">
+        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
           <button class="link-btn" onclick="modificaDescrizione('${id}')">Modifica</button>
-          <button class="link-btn" style="color:var(--red-fg)" onclick="eliminaDescrizione('${id}')">Elimina</button>
+          <button class="link-btn danger" onclick="eliminaDescrizione('${id}')">Elimina</button>
         </div>
       </div>
     </div>`;
@@ -1497,6 +1634,249 @@ function switchPage(name, btn){
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   btn.classList.add('active');
+  if(name==='stat') renderStat();
+  document.querySelector('.scroll-area').scrollTop = 0;
+}
+
+/* ════════ STATISTICHE ════════ */
+let statModo = 'guasti', statPeriodo = 'anno', statLinea = 'ALL', statTuttiTreni = false;
+let STAT_GRUPPI = {};
+const MESI = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+const MESI_BREVI = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+const C_TOT = '#8F87E8', C_OK = '#7BCB98', C_KO = '#F08C8C';
+
+function setStat(tipo, val, el){
+  if(tipo==='modo') statModo = val;
+  if(tipo==='periodo') statPeriodo = val;
+  if(tipo==='linea') statLinea = val;
+  statTuttiTreni = false;
+  el.parentElement.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderStat();
+}
+function addGiorni(d, n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+function fmtData(iso){ return iso ? iso.split('-').reverse().join('/') : '-'; }
+
+/* Periodo scelto + periodo di confronto della stessa lunghezza */
+function periodoStat(){
+  const oggi = new Date(); oggi.setHours(0,0,0,0);
+  const fine = addGiorni(oggi, 1); // escluso
+  if(statPeriodo==='mese'){
+    const ini = new Date(oggi.getFullYear(), oggi.getMonth(), 1);
+    const pIni = new Date(oggi.getFullYear(), oggi.getMonth()-1, 1);
+    const giorniPrec = new Date(oggi.getFullYear(), oggi.getMonth(), 0).getDate();
+    const pFine = new Date(oggi.getFullYear(), oggi.getMonth()-1, Math.min(oggi.getDate(), giorniPrec)+1);
+    return {ini, fine, pIni, pFine, nome:'Questo mese', cfr:'rispetto allo stesso periodo di '+MESI[pIni.getMonth()]};
+  }
+  if(statPeriodo==='90'){
+    const ini = addGiorni(fine, -90);
+    return {ini, fine, pIni:addGiorni(ini,-90), pFine:ini, nome:'Ultimi 90 giorni', cfr:'rispetto ai 90 giorni prima'};
+  }
+  if(statPeriodo==='anno'){
+    const ini = new Date(oggi.getFullYear(), 0, 1);
+    const pIni = new Date(oggi.getFullYear()-1, 0, 1);
+    const pFine = new Date(oggi.getFullYear()-1, oggi.getMonth(), oggi.getDate()+1);
+    return {ini, fine, pIni, pFine, nome:"Quest'anno", cfr:'rispetto allo stesso periodo del '+(oggi.getFullYear()-1)};
+  }
+  return {ini:null, fine:null, nome:'Tutto lo storico', cfr:null};
+}
+function guastiNelPeriodo(ini, fine){
+  const a = ini ? oggiISO(ini) : null, b = fine ? oggiISO(fine) : null;
+  return Object.entries(allGuasti).filter(([id,g])=>{
+    if(statLinea!=='ALL' && g.linea!==statLinea) return false;
+    if(!g.data) return !a;
+    if(a && g.data < a) return false;
+    if(b && g.data >= b) return false;
+    return true;
+  });
+}
+function chiaveCron(g){ return (g.data||'') + ' ' + (g.ora||'') + ' ' + String(g.creato||0).padStart(15,'0'); }
+function chiaveDescr(s){ return (s||'').trim().toLowerCase().replace(/\s+/g,' '); }
+
+/* Calcolo: guasti, treni (materiale), recidive */
+function calcolaStat(entries){
+  const ord = entries.slice().sort((x,y)=> chiaveCron(x[1]).localeCompare(chiaveCron(y[1])));
+  const treni = {}, gruppi = {}, descr = {}, perLinea = {M1:0,M2:0,M3:0,M4:0,M5:0};
+  let rip = 0, nonRip = 0, senzaMat = 0;
+  ord.forEach(([id,g])=>{
+    if(g.riparato==='si') rip++; else nonRip++;
+    if(perLinea[g.linea]!==undefined) perLinea[g.linea]++;
+    const kd = chiaveDescr(g.breve);
+    if(kd){
+      if(!descr[kd]) descr[kd] = {testo:(g.breve||'').trim(), n:0, rip:0, ids:[]};
+      descr[kd].n++; if(g.riparato==='si') descr[kd].rip++; descr[kd].ids.push(id);
+    }
+    const mat = (g.materiale||'').trim();
+    if(!mat){ senzaMat++; return; }
+    const kt = g.linea+'|'+mat;
+    if(!treni[kt]) treni[kt] = {linea:g.linea, materiale:mat, ids:[], rip:0, ultimo:null};
+    treni[kt].ids.push(id); if(g.riparato==='si') treni[kt].rip++; treni[kt].ultimo = g;
+    if(kd){
+      const kr = kt+'|'+kd;
+      if(!gruppi[kr]) gruppi[kr] = {linea:g.linea, materiale:mat, testo:(g.breve||'').trim(), ids:[], ultimo:null};
+      gruppi[kr].ids.push(id); gruppi[kr].ultimo = g;
+    }
+  });
+  const listaTreni = Object.values(treni).sort((a,b)=> b.ids.length-a.ids.length || chiaveCron(b.ultimo).localeCompare(chiaveCron(a.ultimo)));
+  const recidivi = Object.values(gruppi).filter(x=>x.ids.length>=2).sort((a,b)=> b.ids.length-a.ids.length || chiaveCron(b.ultimo).localeCompare(chiaveCron(a.ultimo)));
+  return {
+    totale: entries.length, rip, nonRip, senzaMat, perLinea,
+    descr: Object.values(descr).sort((a,b)=> b.n-a.n),
+    treni: listaTreni,
+    treniRip: listaTreni.filter(t=>t.ultimo.riparato==='si').length,
+    treniNonRip: listaTreni.filter(t=>t.ultimo.riparato!=='si').length,
+    treniRecidivi: listaTreni.filter(t=>t.ids.length>=2),
+    gruppiRecidivi: recidivi,
+    episodiRecidivi: recidivi.reduce((s,x)=>s+x.ids.length, 0)
+  };
+}
+
+function htmlKpi(lbl, val, prev, verso, sub, cfr, tono){
+  let delta = '';
+  if(prev!==null && prev!==undefined && cfr){
+    const d = val - prev;
+    const cls = d===0 ? '' : ((d>0) === (verso==='su') ? 'bene' : 'male');
+    delta = `<div class="kpi-delta ${cls}"><b>${d===0 ? 'Uguale' : (d>0?'+':'')+d}</b> ${cfr} (${prev})</div>`;
+  }
+  return `<div class="kpi ${tono||''}"><div class="kpi-lbl">${lbl}</div><div class="kpi-val">${val}</div>${sub?`<div class="kpi-sub">${sub}</div>`:''}${delta}</div>`;
+}
+function registraGruppo(titolo, sub, ids){
+  const k = 'g'+Object.keys(STAT_GRUPPI).length;
+  STAT_GRUPPI[k] = {titolo, sub, ids};
+  return k;
+}
+function htmlRiga(k, linea, titolo, sub, n, nLbl){
+  return `<div class="rank-row" onclick="apriStatSheet('${k}')">
+    ${badgeLinea(linea)}
+    <div class="rank-main"><div class="rank-title">${titolo}</div><div class="rank-sub">${sub}</div></div>
+    <div class="rank-count">${n}<small>${nLbl}</small></div>
+    ${ic('chevron')}
+  </div>`;
+}
+function htmlBarra(lbl, n, max, parti){
+  const fills = parti.map(([v,c])=> v>0 ? `<div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:${c}"></div>` : '').join('');
+  return `<div class="bar-item"><div class="bar-head"><span>${lbl}</span><b>${n}</b></div><div class="bar-track">${fills}</div></div>`;
+}
+function vuoto(testo){ return `<div class="empty-state">${ic('chart','')}<div class="empty-title">Nessun dato</div><div class="empty-sub">${testo}</div></div>`; }
+
+/* Andamento ultimi 6 mesi: linee sottili, colori tenui */
+function svgAndamento(){
+  const oggi = new Date(), mesi = [];
+  for(let i=5;i>=0;i--){
+    const d = new Date(oggi.getFullYear(), oggi.getMonth()-i, 1);
+    mesi.push({k:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'), lbl:MESI_BREVI[d.getMonth()], tot:0, no:0});
+  }
+  Object.values(allGuasti).forEach(g=>{
+    if(statLinea!=='ALL' && g.linea!==statLinea) return;
+    const m = mesi.find(x=>x.k===(g.data||'').slice(0,7));
+    if(m){ m.tot++; if(g.riparato!=='si') m.no++; }
+  });
+  const W=320, H=160, pl=24, pr=24, pt=24, pb=32;
+  const max = Math.max(1, ...mesi.map(m=>m.tot));
+  const x = i => pl + (W-pl-pr) * i/5;
+  const y = v => pt + (H-pt-pb) * (1 - v/max);
+  const linea = (key,c) => `<polyline fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${mesi.map((m,i)=>x(i)+','+y(m[key])).join(' ')}"/>`
+    + mesi.map((m,i)=>`<circle cx="${x(i)}" cy="${y(m[key])}" r="3" fill="#fff" stroke="${c}" stroke-width="2"/>`).join('');
+  const griglia = [0, .5, 1].map(f=>`<line x1="${pl}" x2="${W-pr}" y1="${y(max*f)}" y2="${y(max*f)}" stroke="#E1DEFA" stroke-width="1"/>`).join('');
+  const valori = mesi.map((m,i)=>`<text x="${x(i)}" y="${y(m.tot)-8}" text-anchor="middle" font-size="11" font-weight="700" fill="#5E5A86">${m.tot}</text>`).join('');
+  const etichette = mesi.map((m,i)=>`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="11" fill="#8A86B0">${m.lbl}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Andamento guasti ultimi 6 mesi">${griglia}${linea('no',C_KO)}${linea('tot',C_TOT)}${valori}${etichette}</svg>`;
+}
+
+function renderStat(){
+  const p = periodoStat();
+  const cur = calcolaStat(guastiNelPeriodo(p.ini, p.fine));
+  let prev = p.ini ? calcolaStat(guastiNelPeriodo(p.pIni, p.pFine)) : null;
+  // Nessun dato nel periodo di confronto: il confronto non ha senso, non lo mostro
+  if(prev && prev.totale===0){ prev = null; p.cfr = null; }
+  const pv = key => prev ? (typeof prev[key]==='number' ? prev[key] : prev[key].length) : null;
+  STAT_GRUPPI = {};
+
+  document.getElementById('statSub').textContent = p.nome + ' · ' + (statLinea==='ALL' ? 'tutte le linee' : 'linea '+statLinea);
+  const perc = (a,b)=> b ? Math.round(a/b*100)+'% del totale' : '';
+  const kpi = document.getElementById('statKpi');
+  const body = document.getElementById('statBody');
+
+  if(statModo==='guasti'){
+    kpi.innerHTML =
+      htmlKpi('Guasti', cur.totale, pv('totale'), 'giu', '', p.cfr) +
+      htmlKpi('Riparati', cur.rip, pv('rip'), 'su', perc(cur.rip,cur.totale), p.cfr, 'ok') +
+      htmlKpi('Non riparati', cur.nonRip, pv('nonRip'), 'giu', perc(cur.nonRip,cur.totale), p.cfr, 'ko') +
+      htmlKpi('Guasti recidivi', cur.gruppiRecidivi.length, pv('gruppiRecidivi'), 'giu', cur.episodiRecidivi ? cur.episodiRecidivi+' episodi' : '', p.cfr);
+
+    let html = `<div class="card"><div class="card-title">${ic('chart','')}Andamento ultimi 6 mesi</div>
+      <div class="chart" style="margin-top:16px">${svgAndamento()}</div>
+      <div class="legend"><span><i style="background:${C_TOT}"></i>Guasti</span><span><i style="background:${C_KO}"></i>Non riparati</span></div></div>`;
+
+    if(cur.totale===0){ body.innerHTML = html + vuoto('Nessun guasto nel periodo scelto'); return; }
+
+    if(statLinea==='ALL'){
+      const maxL = Math.max(1, ...Object.values(cur.perLinea));
+      html += `<div class="card"><div class="card-title">Guasti per linea</div><div style="margin-top:16px">` +
+        ['M1','M2','M3','M4','M5'].map(l=> htmlBarra(l, cur.perLinea[l], maxL, [[cur.perLinea[l], LINE_COLORS[l]+'99']])).join('') + `</div></div>`;
+    }
+
+    const top = cur.descr.slice(0, 8), maxD = top.length ? top[0].n : 1;
+    html += `<div class="card"><div class="card-title">Guasti più frequenti</div>
+      <div class="card-hint">Raggruppati per descrizione breve</div>` +
+      top.map(d=> htmlBarra(escapeHtml(d.testo), d.n, maxD, [[d.rip, C_OK], [d.n-d.rip, C_KO]])).join('') +
+      `<div class="legend" style="margin-top:16px"><span><i style="background:${C_OK}"></i>Riparati</span><span><i style="background:${C_KO}"></i>Non riparati</span></div></div>`;
+
+    html += `<div class="card"><div class="card-title">${ic('repeat','')}Guasti recidivi</div>
+      <div class="card-hint">Stesso guasto sullo stesso treno almeno 2 volte nel periodo</div>` +
+      (cur.gruppiRecidivi.length ? cur.gruppiRecidivi.map(r=>{
+        const k = registraGruppo('Materiale '+r.materiale, r.testo, r.ids);
+        return htmlRiga(k, r.linea, 'Materiale '+escapeHtml(r.materiale), 'ultimo '+fmtData(r.ultimo.data)+' · '+escapeHtml(r.testo), r.ids.length, 'volte');
+      }).join('') : `<div class="empty-sub">Nessun guasto recidivo nel periodo</div>`) + `</div>`;
+    body.innerHTML = html;
+  } else {
+    kpi.innerHTML =
+      htmlKpi('Treni con guasti', cur.treni.length, pv('treni'), 'giu', '', p.cfr) +
+      htmlKpi('Treni riparati', cur.treniRip, pv('treniRip'), 'su', 'ultimo guasto riparato', p.cfr, 'ok') +
+      htmlKpi('Treni non riparati', cur.treniNonRip, pv('treniNonRip'), 'giu', 'ultimo guasto aperto', p.cfr, 'ko') +
+      htmlKpi('Treni recidivi', cur.treniRecidivi.length, pv('treniRecidivi'), 'giu', 'almeno 2 guasti', p.cfr);
+
+    if(cur.treni.length===0){ body.innerHTML = vuoto('Nessun treno con guasti nel periodo scelto'); return; }
+
+    const tot = cur.treni.length;
+    let html = `<div class="card"><div class="card-title">Stato dei treni</div>
+      <div class="card-hint">In base all'ultimo guasto registrato su ciascun treno</div>
+      <div class="bar-track big">
+        <div class="bar-fill" style="width:${(cur.treniRip/tot*100).toFixed(1)}%;background:${C_OK}"></div>
+        <div class="bar-fill" style="width:${(cur.treniNonRip/tot*100).toFixed(1)}%;background:${C_KO}"></div>
+      </div>
+      <div class="legend"><span><i style="background:${C_OK}"></i>Riparati ${cur.treniRip}</span><span><i style="background:${C_KO}"></i>Non riparati ${cur.treniNonRip}</span></div></div>`;
+
+    const riga = t => {
+      const stato = t.ultimo.riparato==='si' ? 'riparato' : 'non riparato';
+      const k = registraGruppo('Materiale '+t.materiale, 'Linea '+t.linea+' · '+t.ids.length+(t.ids.length===1?' guasto':' guasti'), t.ids);
+      return htmlRiga(k, t.linea, 'Materiale '+escapeHtml(t.materiale), 'ultimo '+fmtData(t.ultimo.data)+' · '+stato, t.ids.length, t.ids.length===1?'guasto':'guasti');
+    };
+
+    html += `<div class="card"><div class="card-title">${ic('repeat','')}Treni recidivi</div>
+      <div class="card-hint">Treni con almeno 2 guasti nel periodo</div>` +
+      (cur.treniRecidivi.length ? cur.treniRecidivi.map(riga).join('') : `<div class="empty-sub">Nessun treno recidivo nel periodo</div>`) + `</div>`;
+
+    const lista = statTuttiTreni ? cur.treni : cur.treni.slice(0, 15);
+    html += `<div class="card"><div class="card-title">${ic('train','')}Tutti i treni</div>
+      <div class="card-hint">Ordinati per numero di guasti</div>` + lista.map(riga).join('') +
+      (cur.treni.length > 15 && !statTuttiTreni ? `<button class="btn-secondary" onclick="statTuttiTreni=true;renderStat()">Mostra tutti (${cur.treni.length})</button>` : '') + `</div>`;
+
+    if(cur.senzaMat) html += `<div class="card-hint" style="text-align:center">${cur.senzaMat} ${cur.senzaMat===1?'guasto senza materiale non è contato':'guasti senza materiale non sono contati'}</div>`;
+    body.innerHTML = html;
+  }
+}
+function apriStatSheet(k){
+  const gr = STAT_GRUPPI[k]; if(!gr) return;
+  document.getElementById('statSheetTitle').textContent = gr.titolo;
+  document.getElementById('statSheetSub').textContent = gr.sub;
+  const ids = gr.ids.filter(id=>allGuasti[id]).sort((a,b)=> chiaveCron(allGuasti[b]).localeCompare(chiaveCron(allGuasti[a])));
+  document.getElementById('statSheetList').innerHTML = ids.map(id=> htmlCardGuasto(id, allGuasti[id], `apriDaStat('${id}')`)).join('');
+  document.getElementById('statOverlay').classList.add('open');
+}
+function apriDaStat(id){
+  document.getElementById('statOverlay').classList.remove('open');
+  openDetail('guasto', id);
 }
 
 /* ════════ TOAST ════════ */
@@ -1513,6 +1893,11 @@ listenSegnalazioni();
 listenMaterialiExtra();
 listenDescrizioniPreset();
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+/* ════════ OFFLINE (service worker) ════════ */
+if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
 </script>
 </body>
 </html>
