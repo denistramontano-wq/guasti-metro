@@ -1,5 +1,5 @@
 // Service worker Guasti Metro — cambia CACHE ad ogni nuova versione dell'app
-const CACHE = 'guasti-metro-v4.0.0';
+const CACHE = 'guasti-metro-colleghi-v4.1.0';
 const SHELL = [
   './',
   './index.html',
@@ -9,9 +9,7 @@ const SHELL = [
   './icon-512.png',
   './icon-maskable-192.png',
   './icon-maskable-512.png',
-  './apple-touch-icon.png',
-  'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js',
-  'https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js'
+  './apple-touch-icon.png'
 ];
 
 self.addEventListener('install', e => {

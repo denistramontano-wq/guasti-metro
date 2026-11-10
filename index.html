@@ -14,8 +14,6 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <title>Guasti Metro</title>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
 :root{
   --bg:#F3F2FC; --surface:#fff; --surface2:#F7F6FF;
@@ -108,6 +106,9 @@ div.set-row{cursor:default}
 .switch.on::after{left:20px}
 .conn{width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0}
 .conn.ok{background:var(--green)} .conn.ko{background:var(--red)}
+.h-cloud{width:100%;display:flex;align-items:center;gap:16px;padding:16px;margin-bottom:8px;border:none;border-radius:16px;background:var(--amber-bg);color:var(--amber-fg);text-align:left;font-size:14px;font-weight:700;line-height:1.4;cursor:pointer}
+.h-cloud .ic{flex-shrink:0}
+.cloud-note{font-size:14px;color:var(--text2);line-height:1.5;margin-bottom:16px}
 .set-info{text-align:center;font-size:13px;color:var(--text3);line-height:1.6}
 
 /* ── PAGINE ── */
@@ -282,6 +283,8 @@ div.set-row{cursor:default}
   <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
   <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
   <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
 </svg>
 
@@ -291,7 +294,7 @@ div.set-row{cursor:default}
   <header class="topbar">
     <div class="topbar-logo" id="topLogo"><svg class="ic ic-lg"><use href="#i-alert"/></svg>Guasti<span>Metro</span></div>
     <button class="back" id="topBack" style="display:none" onclick="tornaHome()" aria-label="Torna alla Home"><span class="btn"><svg class="ic"><use href="#i-back"/></svg></span><span id="topTitle"></span></button>
-    <div class="firma">v4.0.0 · Creato da<br>Denis Tramontano</div>
+    <div class="firma">v4.1.0 · Creato da<br>Denis Tramontano</div>
   </header>
 
   <main class="scroll-area">
@@ -308,6 +311,8 @@ div.set-row{cursor:default}
         <button class="h-st ko" onclick="homeVaiNonRiparati()"><b id="homeNonRip">–</b><span>non riparati</span></button>
         <button class="h-st warn" onclick="homeVaiRecidivi()"><b id="homeRecid">–</b><span>treni recidivi</span></button>
       </div>
+
+      <button class="h-cloud" id="homeCloud" style="display:none" onclick="homeCloudTocca()"><svg class="ic"><use href="#i-cloud"/></svg><span id="homeCloudTxt"></span></button>
 
       <button class="h-hero" onclick="apri('guasto')">
         <span class="bubble"><svg class="ic ic-lg"><use href="#i-plus"/></svg></span>
@@ -334,14 +339,14 @@ div.set-row{cursor:default}
         <button class="h-tile" onclick="apri('impostazioni')">
           <span class="bubble b-gray"><svg class="ic"><use href="#i-settings"/></svg></span>
           <span class="t">Impostazioni</span>
-          <span class="s">Materiali, descrizioni, app</span>
+          <span class="s">Copia nel cloud, materiali, app</span>
         </button>
       </div>
     </section>
 
     <!-- ── PAGINA: IMPOSTAZIONI ── -->
     <section class="page" id="page-impostazioni">
-      <div class="set-lbl">Dati condivisi</div>
+      <div class="set-lbl">Personalizza</div>
       <div class="set-box">
         <button class="set-row" onclick="apriGestioneMateriali()">
           <span class="bubble b-purple"><svg class="ic"><use href="#i-train"/></svg></span>
@@ -400,18 +405,18 @@ div.set-row{cursor:default}
           <span class="set-main"><span class="t" style="display:block">Esporta tutto (CSV)</span><span class="s">Guasti e segnalazioni in un unico file</span></span>
           <svg class="ic"><use href="#i-chevron"/></svg>
         </button>
-        <div class="set-row">
-          <span class="bubble b-green"><svg class="ic"><use href="#i-wifi"/></svg></span>
-          <span class="set-main"><span class="t" style="display:block">Collegamento al database</span><span class="s" id="setConnSub">Verifica in corso...</span></span>
-          <span class="conn" id="setConnDot"></span>
-        </div>
+        <button class="set-row" onclick="apriCloud()">
+          <span class="bubble b-green"><svg class="ic"><use href="#i-cloud"/></svg></span>
+          <span class="set-main"><span class="t" style="display:block">Copia nel cloud</span><span class="s" id="setCloudSub">—</span></span>
+          <span class="conn" id="setCloudDot"></span>
+        </button>
       </div>
 
       <div class="set-lbl">App</div>
       <div class="set-box">
         <button class="set-row" onclick="cercaAggiornamenti()">
           <span class="bubble b-purple"><svg class="ic"><use href="#i-refresh"/></svg></span>
-          <span class="set-main"><span class="t" style="display:block">Cerca aggiornamenti</span><span class="s">Versione installata 4.0.0</span></span>
+          <span class="set-main"><span class="t" style="display:block">Cerca aggiornamenti</span><span class="s">Versione installata 4.1.0</span></span>
           <svg class="ic"><use href="#i-chevron"/></svg>
         </button>
         <button class="set-row danger" onclick="svuotaDatiLocali()">
@@ -421,7 +426,7 @@ div.set-row{cursor:default}
         </button>
       </div>
 
-      <div class="set-info">Guasti Metro v4.0.0<br>Creato da Denis Tramontano</div>
+      <div class="set-info">Guasti Metro v4.1.0<br>Creato da Denis Tramontano</div>
     </section>
 
     <!-- ── PAGINA: NUOVO GUASTO ── -->
@@ -855,7 +860,7 @@ div.set-row{cursor:default}
   <div class="sheet">
     <div class="sheet-handle"></div>
     <h2>Destinatario WhatsApp</h2>
-    <div class="sec-sub" style="margin-bottom:16px">Numero a cui inviare guasti e segnalazioni. Vale per tutti gli utenti dell'app.</div>
+    <div class="sec-sub" style="margin-bottom:16px">Numero a cui inviare guasti e segnalazioni. Lascia vuoto per scegliere il contatto ogni volta.</div>
     <div class="field">
       <label for="waInput">Numero con prefisso</label>
       <input type="tel" id="waInput" placeholder="+39 ..." inputmode="tel">
@@ -881,21 +886,301 @@ div.set-row{cursor:default}
   </div>
 </div>
 
+<div class="overlay" id="cloudOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2>Copia nel cloud</h2>
+    <p class="cloud-note" id="cloudNote"></p>
+    <div class="set-box" id="cloudAzioni" style="margin-bottom:0"></div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" onclick="chiudiCloud()"><svg class="ic"><use href="#i-x"/></svg>Chiudi</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-/* ════════ CONFIG FIREBASE (progetto "assistenza-di-linea") ════════ */
-const firebaseConfig = {
-  apiKey: "AIzaSyDL7N3HlfR4xF7vUPZvApvhFY8x-__jXIo",
-  authDomain: "assistenza-di-linea.firebaseapp.com",
-  databaseURL: "https://assistenza-di-linea-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "assistenza-di-linea",
-  storageBucket: "assistenza-di-linea.firebasestorage.app",
-  messagingSenderId: "1033380053471",
-  appId: "1:1033380053471:web:ac196db53e38474486c46a"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+/* ════════ DATI SU QUESTO TELEFONO (versione per i colleghi) ════════
+   Stessa interfaccia di firebase.database() usata dal resto dell'app
+   (ref().on / set / push / remove), ma i dati restano nel telefono. */
+const APP_VERSIONE = '4.1.0';
+const LOCALE_KEY = 'guastiMetro.locale.dati';
+const CLOUD_KEY = 'guastiMetro.locale.cloud';
+
+const db = (()=>{
+  let albero = {};
+  try { albero = JSON.parse(localStorage.getItem(LOCALE_KEY) || '{}') || {}; } catch(e){ albero = {}; }
+  const ascoltatori = [];
+  const pezzi = p => String(p).split('/').filter(Boolean);
+  const copia = v => v===undefined ? null : JSON.parse(JSON.stringify(v));
+  function leggi(p){
+    let n = albero;
+    for(const k of pezzi(p)){ if(n===null || typeof n!=='object') return null; n = n[k]; }
+    return n===undefined ? null : copia(n);
+  }
+  function memorizza(){ localStorage.setItem(LOCALE_KEY, JSON.stringify(albero)); }
+  function avvisa(){ ascoltatori.forEach(a=>{ try { a.cb({val:()=>leggi(a.p)}); } catch(e){ console.error(e); } }); }
+  function scrivi(p, v){
+    const prima = JSON.stringify(albero);
+    const ks = pezzi(p);
+    let n = albero;
+    for(let i=0; i<ks.length-1; i++){
+      if(n[ks[i]]===null || typeof n[ks[i]]!=='object') n[ks[i]] = {};
+      n = n[ks[i]];
+    }
+    const ultimo = ks[ks.length-1];
+    if(v===null || v===undefined) delete n[ultimo]; else n[ultimo] = copia(v);
+    try { memorizza(); }
+    catch(e){ albero = JSON.parse(prima); return Promise.reject(new Error('memoria del telefono piena')); }
+    avvisa();
+    cloudModificato();
+    return Promise.resolve();
+  }
+  function nuovoId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,10); }
+  function ref(p){
+    return {
+      key: pezzi(p).pop() || null,
+      on(ev, cb){ ascoltatori.push({p, cb}); setTimeout(()=>cb({val:()=>leggi(p)}), 0); return cb; },
+      set(v){ return scrivi(p, v); },
+      remove(){ return scrivi(p, null); },
+      push(v){
+        const r = ref(p + '/' + nuovoId());
+        if(v!==undefined){ const pr = r.set(v); r.then = pr.then.bind(pr); r.catch = pr.catch.bind(pr); }
+        return r;
+      }
+    };
+  }
+  function tutto(){ return copia(albero); }
+  function sostituisci(nuovo){
+    const prima = albero;
+    albero = (nuovo && typeof nuovo==='object') ? copia(nuovo) : {};
+    try { memorizza(); } catch(e){ albero = prima; throw new Error('Memoria del telefono piena'); }
+    avvisa();
+  }
+  return { ref, tutto, sostituisci };
+})();
+
+/* ════════ COPIA NEL CLOUD ════════
+   Dove il browser lo permette (Chrome su Android e PC) l'app scrive da sola
+   un file .json in una cartella di Drive/OneDrive a ogni modifica.
+   Altrove (iPhone) si salva e si recupera una copia a mano. */
+const FILE_API = 'showSaveFilePicker' in window && 'showOpenFilePicker' in window;
+const TIPI_COPIA = [{description:'Copia Guasti Metro', accept:{'application/json':['.json']}}];
+let cloudFile = null;
+let cloudStato = 'nessuno';   // nessuno | ok | permesso | errore
+let cloudTimer = null;
+
+function cloudInfo(){ try { return JSON.parse(localStorage.getItem(CLOUD_KEY) || '{}') || {}; } catch(e){ return {}; } }
+function cloudSalvaInfo(o){ try { localStorage.setItem(CLOUD_KEY, JSON.stringify(Object.assign(cloudInfo(), o))); } catch(e){} }
+
+/* IndexedDB serve solo a ricordare il file collegato */
+function idb(){ return new Promise((ok,ko)=>{ const r = indexedDB.open('guastiMetro', 1); r.onupgradeneeded = ()=> r.result.createObjectStore('h'); r.onsuccess = ()=> ok(r.result); r.onerror = ()=> ko(r.error); }); }
+function idbGet(k){ return idb().then(d=> new Promise((ok,ko)=>{ const q = d.transaction('h').objectStore('h').get(k); q.onsuccess = ()=> ok(q.result); q.onerror = ()=> ko(q.error); })); }
+function idbSet(k, v){ return idb().then(d=> new Promise((ok,ko)=>{ const t = d.transaction('h','readwrite'); if(v===null) t.objectStore('h').delete(k); else t.objectStore('h').put(v, k); t.oncomplete = ()=> ok(); t.onerror = ()=> ko(t.error); })); }
+
+function contenutoCopia(){
+  return JSON.stringify({app:'guasti-metro', versione:APP_VERSIONE, salvato:new Date().toISOString(), dati:db.tutto()});
+}
+function leggiCopia(testo){
+  const o = JSON.parse(testo);
+  if(!o || o.app!=='guasti-metro' || !o.dati || typeof o.dati!=='object') throw new Error('Il file non è una copia di Guasti Metro');
+  return o;
+}
+function contaDati(d){ d = d || {}; return Object.keys(d.guasti || {}).length + Object.keys(d.segnalazioni || {}).length; }
+function confermaSostituzione(o){
+  const qui = contaDati(db.tutto());
+  if(qui===0) return true;
+  const quando = o.salvato ? new Date(o.salvato).toLocaleString('it-IT', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}) : 'data sconosciuta';
+  return confirm(`Sostituire le ${qui} registrazioni di questo telefono con le ${contaDati(o.dati)} della copia del ${quando}?`);
+}
+
+async function cloudScrivi(){
+  if(!cloudFile) return;
+  try {
+    if(await cloudFile.queryPermission({mode:'readwrite'}) !== 'granted'){ cloudStato = 'permesso'; renderCloud(); return; }
+    const w = await cloudFile.createWritable();
+    await w.write(contenutoCopia());
+    await w.close();
+    cloudStato = 'ok';
+    cloudSalvaInfo({ultimo:Date.now(), nome:cloudFile.name, sporco:false});
+  } catch(e){ cloudStato = 'errore'; console.error(e); }
+  renderCloud();
+}
+function cloudModificato(){
+  cloudSalvaInfo({sporco:true});
+  clearTimeout(cloudTimer);
+  cloudTimer = setTimeout(()=>{ cloudTimer = null; if(cloudFile) cloudScrivi(); else renderCloud(); }, 1500);
+}
+/* Se l'app va in secondo piano con un salvataggio in attesa, lo fa subito */
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='hidden' && cloudTimer){ clearTimeout(cloudTimer); cloudTimer = null; cloudScrivi(); }
+});
+
+async function cloudAvvio(){
+  try { if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
+  if(FILE_API){
+    try {
+      cloudFile = (await idbGet('file')) || null;
+      if(cloudFile){
+        const p = await cloudFile.queryPermission({mode:'readwrite'});
+        cloudStato = p==='granted' ? 'ok' : 'permesso';
+        if(p==='granted' && cloudInfo().sporco) cloudScrivi();
+      }
+    } catch(e){ cloudFile = null; cloudStato = 'nessuno'; }
+  }
+  renderCloud();
+}
+async function cloudRiattiva(){
+  chiudiCloud();
+  if(!cloudFile) return;
+  try {
+    if(await cloudFile.requestPermission({mode:'readwrite'}) === 'granted'){
+      cloudStato = 'ok';
+      await cloudScrivi();
+      if(cloudStato==='ok') showToast('Salvataggio nel cloud attivo');
+    } else showToast('Permesso non concesso');
+  } catch(e){ showToast('Permesso non concesso'); }
+  renderCloud();
+}
+async function cloudCreaFile(){
+  chiudiCloud();
+  try {
+    const h = await window.showSaveFilePicker({suggestedName:'guasti-metro-dati.json', types:TIPI_COPIA});
+    cloudFile = h;
+    await idbSet('file', h);
+    await cloudScrivi();
+    if(cloudStato==='ok') showToast('File collegato, i dati si salvano da soli');
+  } catch(e){ if(e.name!=='AbortError') showToast('Non riesco a creare il file'); }
+}
+async function cloudApriFile(){
+  chiudiCloud();
+  try {
+    const [h] = await window.showOpenFilePicker({types:TIPI_COPIA, multiple:false});
+    const o = leggiCopia(await (await h.getFile()).text());
+    if(!confermaSostituzione(o)) return;
+    db.sostituisci(o.dati);
+    cloudFile = h;
+    await idbSet('file', h);
+    let p = 'prompt';
+    try { p = await h.requestPermission({mode:'readwrite'}); } catch(e){}
+    if(p==='granted'){ cloudStato = 'ok'; cloudSalvaInfo({ultimo:Date.now(), nome:h.name, sporco:false}); }
+    else cloudStato = 'permesso';
+    renderCloud();
+    showToast('Dati recuperati: ' + contaDati(o.dati) + ' registrazioni');
+  } catch(e){ if(e.name!=='AbortError') showToast(e instanceof SyntaxError ? 'File non valido' : (e.message || 'File non valido')); }
+}
+function cloudScollega(){
+  chiudiCloud();
+  if(!confirm('Scollegare il file? I dati restano su questo telefono e il file nel cloud non viene cancellato.')) return;
+  cloudFile = null; cloudStato = 'nessuno';
+  idbSet('file', null).catch(()=>{});
+  cloudSalvaInfo({nome:''});
+  renderCloud();
+  showToast('File scollegato');
+}
+async function cloudSalvaOra(){ chiudiCloud(); await cloudScrivi(); if(cloudStato==='ok') showToast('Dati salvati nel cloud'); }
+
+/* Copia a mano: funziona su tutti i telefoni */
+async function copiaSalva(){
+  chiudiCloud();
+  const nome = `guasti-metro-copia-${oggiISO()}.json`;
+  const file = new File([contenutoCopia()], nome, {type:'application/json'});
+  try {
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:'Copia Guasti Metro'});
+    } else {
+      const url = URL.createObjectURL(file);
+      const a = document.createElement('a');
+      a.href = url; a.download = nome;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 1000);
+    }
+    cloudSalvaInfo({ultimo:Date.now(), sporco:false});
+    renderCloud();
+    showToast('Copia pronta');
+  } catch(e){ if(e.name!=='AbortError') showToast('Copia non riuscita'); }
+}
+function copiaRipristina(){
+  chiudiCloud();
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.json,application/json';
+  inp.onchange = async ()=>{
+    const f = inp.files[0];
+    if(!f) return;
+    try {
+      const o = leggiCopia(await f.text());
+      if(!confermaSostituzione(o)) return;
+      db.sostituisci(o.dati);
+      if(cloudFile) cloudScrivi(); else { cloudSalvaInfo({sporco:false}); renderCloud(); }
+      showToast('Dati recuperati: ' + contaDati(o.dati) + ' registrazioni');
+    } catch(e){ showToast(e instanceof SyntaxError ? 'File non valido' : e.message); }
+  };
+  inp.click();
+}
+
+function testoUltimo(t){
+  if(!t) return 'mai';
+  const d = new Date(t), ora = d.toTimeString().slice(0,5);
+  const ieri = new Date(); ieri.setDate(ieri.getDate()-1);
+  if(oggiISO(d)===oggiISO()) return 'oggi alle ' + ora;
+  if(oggiISO(d)===oggiISO(ieri)) return 'ieri alle ' + ora;
+  return 'il ' + d.toLocaleDateString('it-IT');
+}
+function renderCloud(){
+  const info = cloudInfo();
+  const n = contaDati(db.tutto());
+  let testo, classe = '', avviso = '';
+  if(cloudFile && cloudStato==='ok'){
+    testo = `${cloudFile.name} · salvato ${testoUltimo(info.ultimo)}`; classe = 'ok';
+  } else if(cloudFile && cloudStato==='permesso'){
+    testo = 'In pausa · tocca per riattivare'; classe = 'ko';
+    avviso = 'Il salvataggio nel cloud è in pausa. Tocca per riattivarlo.';
+  } else if(cloudFile && cloudStato==='errore'){
+    testo = 'Ultimo salvataggio non riuscito, riprovo alla prossima modifica'; classe = 'ko';
+  } else {
+    testo = 'Ultima copia: ' + testoUltimo(info.ultimo);
+    classe = info.ultimo ? (info.sporco ? 'ko' : 'ok') : '';
+    const giorni = info.ultimo ? Math.floor((Date.now() - info.ultimo) / 86400000) : null;
+    if(n===0 && !info.ultimo) avviso = 'Primo avvio? Se hai già una copia dei dati nel cloud, tocca per recuperarla.';
+    else if(n>0 && info.sporco && giorni===null) avviso = 'I dati sono solo su questo telefono. Tocca per salvarne una copia nel cloud.';
+    else if(n>0 && info.sporco && giorni>=7) avviso = `Ultima copia dei dati ${giorni} giorni fa. Tocca per salvarne una.`;
+  }
+  const sub = document.getElementById('setCloudSub');
+  if(sub){ sub.textContent = testo; document.getElementById('setCloudDot').className = 'conn ' + classe; }
+  const b = document.getElementById('homeCloud');
+  if(b){ b.style.display = avviso ? 'flex' : 'none'; document.getElementById('homeCloudTxt').textContent = avviso; }
+}
+function homeCloudTocca(){ if(cloudFile && cloudStato==='permesso') cloudRiattiva(); else apriCloud(); }
+
+function rigaCloud(icona, colore, titolo, sotto, azione, pericolo){
+  return `<button class="set-row${pericolo ? ' danger' : ''}" onclick="${azione}"><span class="bubble ${colore}">${ic(icona,'')}</span>`
+       + `<span class="set-main"><span class="t" style="display:block">${titolo}</span><span class="s">${sotto}</span></span>${ic('chevron','')}</button>`;
+}
+function apriCloud(){
+  let note, righe = '';
+  if(FILE_API && cloudFile){
+    note = cloudStato==='permesso'
+      ? 'Il telefono chiede di nuovo il permesso di scrivere nel file. Finché non lo riattivi, le modifiche restano solo qui.'
+      : `Ogni modifica viene salvata da sola nel file ${cloudFile.name}. Se cambi telefono, installa l'app e scegli "Usa un file esistente".`;
+    if(cloudStato==='permesso') righe += rigaCloud('refresh','b-green','Riattiva il salvataggio','Concedi di nuovo il permesso al file','cloudRiattiva()');
+    else righe += rigaCloud('cloud','b-green','Salva adesso','Aggiorna subito il file nel cloud','cloudSalvaOra()');
+    righe += rigaCloud('x','b-red','Scollega il file','I dati restano su questo telefono','cloudScollega()', true);
+  } else if(FILE_API){
+    note = 'Scegli una cartella di Google Drive, OneDrive o simili: l\'app ci salva un file e lo aggiorna da sola a ogni modifica. Se cambi telefono, installa l\'app e scegli "Usa un file esistente".';
+    righe += rigaCloud('cloud','b-green','Crea il file nel cloud','I dati si salvano da soli','cloudCreaFile()');
+    righe += rigaCloud('refresh','b-blue','Usa un file esistente','Cambio telefono: recupera i dati e continua lì','cloudApriFile()');
+  } else {
+    note = 'Su questo telefono l\'app non può salvare da sola nel cloud. Ogni tanto salva una copia in una cartella di iCloud, Google Drive o OneDrive: se cambi telefono la recuperi da lì.';
+  }
+  righe += rigaCloud('upload','b-purple','Salva una copia','Scegli dove salvarla, anche nel cloud','copiaSalva()');
+  righe += rigaCloud('download','b-gray','Recupera da una copia','Sostituisce i dati di questo telefono','copiaRipristina()');
+  document.getElementById('cloudNote').textContent = note;
+  document.getElementById('cloudAzioni').innerHTML = righe;
+  document.getElementById('cloudOverlay').classList.add('open');
+}
+function chiudiCloud(){ document.getElementById('cloudOverlay').classList.remove('open'); }
+
 
 /* ════════ DATI STATICI ════════ */
 const STAZIONI = {
@@ -1855,6 +2140,7 @@ window.addEventListener('popstate', ()=>{
 
 /* ════════ HOME ════════ */
 function renderHome(){
+  renderCloud();
   const ora = new Date().getHours();
   document.getElementById('homeSaluto').textContent = ora<13 ? 'Buongiorno' : (ora<18 ? 'Buon pomeriggio' : 'Buonasera');
   const d = new Date().toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
@@ -1910,7 +2196,7 @@ const PREFS_KEY = 'guastiMetro.prefs';
 const PREFS_DEFAULT = {lineaDef:'', dataAuto:true, dopoSalva:'home'};
 let prefs = caricaPrefs();
 let waNumeroCondiviso = '';
-const WA_DEFAULT = '393667687406';
+const WA_DEFAULT = '';
 
 function caricaPrefs(){
   try { return Object.assign({}, PREFS_DEFAULT, JSON.parse(localStorage.getItem(PREFS_KEY) || '{}')); }
@@ -1948,9 +2234,10 @@ function waNumero(){ return (waNumeroCondiviso || WA_DEFAULT).replace(/\D/g,'');
 function fmtTelefono(n){ return '+' + n.replace(/^(\d{2})(\d{3})(\d{3})(\d+)$/, '$1 $2 $3 $4'); }
 
 function renderImpostazioni(){
+  renderCloud();
   const nd = Object.keys(DESCRIZIONI_PRESET).length;
   document.getElementById('setDescrSub').textContent = nd===1 ? '1 descrizione' : nd+' descrizioni';
-  document.getElementById('setWaSub').textContent = fmtTelefono(waNumero());
+  document.getElementById('setWaSub').textContent = (waNumero() ? fmtTelefono(waNumero()) : 'Scegli il contatto ogni volta');
   document.querySelectorAll('#setLinea button').forEach(b=>b.classList.toggle('on', b.dataset.v===prefs.lineaDef));
   document.querySelectorAll('#setDopo button').forEach(b=>b.classList.toggle('on', b.dataset.v===prefs.dopoSalva));
   const sw = document.getElementById('setDataAuto');
@@ -1962,21 +2249,17 @@ function listenImpostazioni(){
     waNumeroCondiviso = String(snap.val() || '');
     if(paginaCorrente==='impostazioni') renderImpostazioni();
   });
-  db.ref('.info/connected').on('value', snap=>{
-    const ok = snap.val()===true;
-    document.getElementById('setConnDot').className = 'conn ' + (ok ? 'ok' : 'ko');
-    document.getElementById('setConnSub').textContent = ok ? 'Collegato · dati aggiornati' : 'Non collegato · i dati si inviano al ritorno della rete';
-  });
+  cloudAvvio();
 }
 function apriWhatsApp(){
-  document.getElementById('waInput').value = '+' + waNumero();
+  document.getElementById('waInput').value = waNumero() ? '+' + waNumero() : '';
   document.getElementById('waError').textContent = '';
   document.getElementById('waOverlay').classList.add('open');
 }
 function salvaWhatsApp(){
   const n = document.getElementById('waInput').value.replace(/\D/g,'');
   const err = document.getElementById('waError');
-  if(n.length < 10){ err.textContent = 'Inserisci il numero completo di prefisso (es. +39...)'; return; }
+  if(n.length && n.length < 10){ err.textContent = 'Inserisci il numero completo di prefisso (es. +39...)'; return; }
   db.ref('impostazioni/whatsapp').set(n).then(()=>{
     document.getElementById('waOverlay').classList.remove('open');
     showToast('Numero WhatsApp salvato');

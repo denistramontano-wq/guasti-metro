@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Guasti Metro",
   "short_name": "Guasti",
-  "description": "Registrazione e consultazione guasti linee metro",
+  "description": "Registrazione guasti linee metro, dati sul telefono",
   "lang": "it",
   "start_url": "./index.html",
   "scope": "./",
